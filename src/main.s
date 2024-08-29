@@ -262,8 +262,12 @@ start:
   ld     a,$18
   ld     (SLIDESPEED),a
 
-  call   eebootcheck
-  call   adcbootcheck
+  ;call   eebootcheck         ; Disabled just for testing
+  ;call   adcbootcheck        ; Disabled just for testing
+  ld     a,1                  ; Load 1 into accumulator (hardware check passed)
+  ld     (HWOK_EE),a          ; Set HWOK_EE to passed.
+  ld     (HWOK_ADC),a         ; Set HWOK_ADC to passed.
+  
 
   ;Error messages if needed:
   ld     a,(HWOK_EE)

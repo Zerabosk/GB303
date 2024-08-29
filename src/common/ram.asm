@@ -64,10 +64,14 @@ DRUMSLR DB
 
 SEQ DS 4*16
 
-SEQ_CURX DB
+; Used for tracking cursor position in pattern editor
+SEQ_CURX DB         
+SEQ_CURY DB
 SEQ_PREVX DB
-SEQ_TOERASEX DB
 SEQ_PREVY DB
+SEQ_TOERASEX DB
+SEQ_TOERASEY DB
+PREV_PLAYHEAD_Y: DB ; Used for removing playhead from screen
 
 LASTNOTEINPUT DB
 LASTDRUMINPUT DB
@@ -88,8 +92,8 @@ POT3V DB
 EEWRADDRL DB
 EEWRADDRM DB
 
-SAVECURSONGSLOT DB      ;Cursor save song number
-SAVECURPATTSLOT DB	;Cursor save pattern number
+SAVECURSONGSLOT DB      ;Playhead save song number
+SAVECURPATTSLOT DB	;Playhead save pattern number
 
 CURPATTERN DB		;Currently loaded pattern
 PATTNAME DS 9

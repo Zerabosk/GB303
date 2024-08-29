@@ -21,16 +21,13 @@ input_seq:
   call   dojump
   jr     +
 ++:
-  ld     a,(PLAYING)
-  or     a
-  jr     nz,+
-  ld     a,(NOTEIDX)            ;Just up
+  ld     a,(SEQ_CURY)
   or     a
   jr     nz,++
-  ld     a,15+1			;Wrap around
+  ld     a,15			;Wrap around
 ++:
   dec    a
-  ld     (NOTEIDX),a
+  ld     (SEQ_CURY),a
 +:
   
   ld     a,(JOYP_ACTIVE)	;Down:
@@ -49,16 +46,13 @@ input_seq:
   call   dojump
   jr     +
 ++:
-  ld     a,(PLAYING)
-  or     a
-  jr     nz,+
-  ld     a,(NOTEIDX)		;Just down
+  ld     a,(SEQ_CURY)
   cp     15
   jr     nz,++
   ld     a,-1			;Wrap around
 ++:
   inc    a
-  ld     (NOTEIDX),a
+  ld     (SEQ_CURY),a
 +:
 
   ld     a,(JOYP_ACTIVE)	;Left:
@@ -110,28 +104,11 @@ input_seq:
   ld     a,(JOYP_ACTIVE)	;A
   bit    0,a
   jr     z,+
-  ld     a,(PLAYING)		;Nothing if playing
-  or     a
-  jr     nz,+
-
-  ld     a,(JOYP_CURRENT)	;B
-  bit    1,a
-  jr     z,++
-  ld     a,(SEQ_CURX)
-  sla    a
-  ld     hl,jt_seqinputB
-  rst    0
-  inc    hl
-  ld     h,(hl)
-  ld     l,a
-  call   dojump
-  jr     +
-++:
   				;A only
   ld     a,(SEQ_CURX)		;On notes column
   or     a
   jr     nz,++
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURX)
   call   getnotenumber          ;Insert last input note
   bit    7,a
   jr     z,+++			;See if note is empty
@@ -148,7 +125,7 @@ input_seq:
   ld     a,(SEQ_CURX)		;On drums column
   cp     5
   jr     nz,+
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURX)
   call   getnoteattrl		;See if drum is empty
   and    $F8
   cp     1+1
@@ -159,7 +136,7 @@ input_seq:
   ld     a,(LASTDRUMINPUT)
   and    $F8			;Security
   ld     b,a
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURX)
   call   getnoteattrl           ;Insert last input drum
   and    7
   or     b
@@ -213,7 +190,7 @@ jt_seqinputB
 
 
 seq_inc_note:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnotenumber
   cp     36+$80			;If note was off, set to on, C-2
   jr     nz,+
@@ -234,7 +211,7 @@ seq_inc_note:
   ret
 
 seq_inc_arp:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrh
   inc    a
   ld     (hl),a
@@ -242,7 +219,7 @@ seq_inc_arp:
   ret
 
 seq_inc_drum:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrl
   and    7
   ld     b,a
@@ -256,7 +233,7 @@ seq_inc_drum:
   ret
 
 seq_dec_note:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnotenumber
   dec    a
   ld     b,a
@@ -278,7 +255,7 @@ seq_dec_note:
   ret
 
 seq_dec_arp:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrh
   dec    a
   ld     (hl),a
@@ -286,7 +263,7 @@ seq_dec_arp:
   ret
   
 seq_dec_drum:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrl
   and    7
   ld     b,a
@@ -300,7 +277,7 @@ seq_dec_drum:
   ret
 
 seq_dec_octave:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnotenumber
   and    $7F
   cp     12
@@ -320,7 +297,7 @@ seq_dec_octave:
   ret
 
 seq_dec_arph:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrh
   sub    $10
   ld     (hl),a
@@ -328,7 +305,7 @@ seq_dec_arph:
   ret
   
 seq_dec_drumh:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrl
   and    7
   ld     b,a
@@ -343,7 +320,7 @@ seq_dec_drumh:
 
 
 seq_inc_octave:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnotenumber
   cp     36+$80			;If note was off, set to on, C-2
   jr     nz,+
@@ -362,7 +339,7 @@ seq_inc_octave:
   ret
 
 seq_inc_arph:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrh
   add    $10
   ld     (hl),a
@@ -370,7 +347,7 @@ seq_inc_arph:
   ret
   
 seq_inc_drumh:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrl
   and    7
   ld     b,a
@@ -384,7 +361,7 @@ seq_inc_drumh:
   ret
 
 seq_disable_note:
-  ld     a,(NOTEIDX)            ;See if note is already empty
+  ld     a,(SEQ_CURY)            ;See if note is already empty
   call   getnotenumber
   bit    7,a
   jr     nz,+
@@ -401,7 +378,7 @@ seq_disable_note:
   ret
 
 seq_disable_accent:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrl
   and    $FE
   ld     (hl),a
@@ -409,7 +386,7 @@ seq_disable_accent:
   ret
 
 seq_disable_slide:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrl
   and    $FD
   ld     (hl),a
@@ -417,7 +394,7 @@ seq_disable_slide:
   ret
 
 seq_disable_osc:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrl
   xor    $FB
   ld     (hl),a
@@ -425,7 +402,7 @@ seq_disable_osc:
   ret
 
 seq_disable_arp:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrh
   xor    a			;Clear arp
   ld     (hl),a
@@ -433,7 +410,7 @@ seq_disable_arp:
   ret
 
 seq_disable_drum:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrl
   and    7			;Clear drum #
   ld     (hl),a
@@ -442,7 +419,7 @@ seq_disable_drum:
 
 
 seq_toggle_accent:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrl
   xor    $01
   ld     (hl),a
@@ -450,7 +427,7 @@ seq_toggle_accent:
   ret
 
 seq_toggle_slide:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrl
   xor    $02
   ld     (hl),a
@@ -458,7 +435,7 @@ seq_toggle_slide:
   ret
 
 seq_toggle_osc:
-  ld     a,(NOTEIDX)
+  ld     a,(SEQ_CURY)
   call   getnoteattrl
   xor    $04
   ld     (hl),a

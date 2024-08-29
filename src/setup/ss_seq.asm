@@ -14,8 +14,11 @@ setscreen_seq:
   ld     a,(NOTEIDX)
   ld     (SEQ_PREVY),a
   xor    a
+  ld     (SEQ_CURY),a  ; Initialize cursor position to 0
   ld     (SEQ_CURX),a
-  ld     (SEQ_PREVX),a
+  ld     (SEQ_PREVX),a 
+  ld     a, $FF
+  ld     (PREV_PLAYHEAD_Y), a
   call   draw_seq
 
   call   setdefaultpal
@@ -55,7 +58,7 @@ draw_seq:
   pop    bc
   dec    b
   jr     nz,-
-  call   showcur_seq
+  call   show_play_head
   ret
 
 getnotename:

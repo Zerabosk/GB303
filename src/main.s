@@ -438,23 +438,44 @@ stopp:
   ldh    ($21),a		;CH4 off
   ret
 
+;defaultseq:
+;; .db Notes, Drums, Accent&slide, Arp (I think)
+;  .db $A4,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+
+; For testing
 defaultseq:
-  .db $98,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $8C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $8C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $8C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
+; .db Notes, Drums, Accent&slide, Arp (I think)
+  .db $A4,$10,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$10,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$10,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$10,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
 
 cutofflut:
   .INCBIN "tables\cutofflut.bin"

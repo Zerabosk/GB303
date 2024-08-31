@@ -1,8 +1,8 @@
 vbl_seq:
   call   RAMtoOAM
 
+  call refresh_seq
   call show_play_head
-  call showcur_seq
 
   ld     hl,FRAME
   inc    (hl)
@@ -10,8 +10,6 @@ vbl_seq:
   call   readinput
 
   call   input_seq
-
-  call refresh_seq
 
   ld     a,(HWOK_ADC)
   or     a

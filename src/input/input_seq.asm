@@ -104,6 +104,20 @@ input_seq:
   ld     a,(JOYP_ACTIVE)	;A
   bit    0,a
   jr     z,+
+
+  ld     a,(JOYP_CURRENT)	;B
+  bit    1,a
+  jr     z,++
+  ld     a,(SEQ_CURX)
+  sla    a
+  ld     hl,jt_seqinputB
+  rst    0
+  inc    hl
+  ld     h,(hl)
+  ld     l,a
+  call   dojump
+  jr     +
+++:
   				;A only
   ld     a,(SEQ_CURX)		;On notes column
   or     a

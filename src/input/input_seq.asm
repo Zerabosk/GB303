@@ -122,42 +122,45 @@ input_seq:
   ld     a,(SEQ_CURX)		;On notes column
   or     a
   jr     nz,++
-  ld     a,(SEQ_CURX)
-  call   getnotenumber          ;Insert last input note
+  ld     a,(SEQ_CURY)   ; Get Y position
+  call   getnotenumber  ; Get current note
   bit    7,a
-  jr     z,+++			;See if note is empty
-  ld     (LASTNOTEINPUT),a	;Copy
-  jr     +
-+++:
+  jr     nz,+++         ; Skip if note is not empty
   ld     a,(LASTNOTEINPUT)
   bit    7,a
-  jr     z,+
-  ld     (hl),a 		;Paste
+  jr     z,+            ; Skip if LASTNOTEINPUT is empty
+  ld     (hl),a         ; Paste LASTNOTEINPUT
   call   redrawnote_seq
+  jr     +
++++:
+  ld     (LASTNOTEINPUT),a	;Copy
   jr     +
 ++:
   ld     a,(SEQ_CURX)		;On drums column
   cp     5
   jr     nz,+
-  ld     a,(SEQ_CURX)
-  call   getnoteattrl		;See if drum is empty
-  and    $F8
-  cp     1+1
-  jr     c,+++
-  ld     (LASTDRUMINPUT),a	;Copy
+  ld     a,(SEQ_CURY)   ; Get Y position
+  call   getnoteattrl
+  and    $F8            ; Mask to get drum value
+  cp     $08            ; Compare with "empty" value (00001000)
+  jr     z,.empty_drum  ; Jump if empty
+  ld     (LASTDRUMINPUT),a	;Copy off or valid drum
   jr     +
-+++:
-  ld     a,(LASTDRUMINPUT)
-  and    $F8			;Security
-  ld     b,a
-  ld     a,(SEQ_CURX)
-  call   getnoteattrl           ;Insert last input drum
-  and    7
-  or     b
-  ld     (hl),a                 ;Paste
-  call   redrawdrum_seq
-+:
 
+.empty_drum:
+  ld     a,(LASTDRUMINPUT)
+  and    $F8
+  cp     $08            ; Compare with "empty" value
+  jr     z,+            ; Skip if LASTDRUMINPUT is empty
+  ld     b,a
+  ld     a,(SEQ_CURY)
+  call   getnoteattrl
+  and    7              ; Preserve lower 3 bits
+  or     b              ; Combine with LASTDRUMINPUT
+  ld     (hl),a         ; Paste
+  call   redrawdrum_seq
+
++:
   ret
 
 
@@ -289,6 +292,7 @@ seq_dec_drum:
   ld     (hl),a
   call   redrawdrum_seq
   ret
+
 
 seq_dec_octave:
   ld     a,(SEQ_CURY)

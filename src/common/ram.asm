@@ -60,6 +60,9 @@ CUTOFFEG DB
 SYNTHLR DB
 DRUMSLR DB
 
+PATTERN_LOAD_PROGRESS: DB  ; Tracks how much of the pattern has been loaded
+PATTERN_LOAD_ACTIVE: DB    ; Flag to indicate if we're in the process of loading
+
 ;SEQTEMP DS 16		;Used for drawing preview in loadsave
 
 SEQ DS 4*16

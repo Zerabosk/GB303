@@ -1,3 +1,4 @@
+; Updated load pattern - now presumes the TEMPSECTOR is already fullyloaded.
 loadpattern:
   ld     a,(HWOK_EE)
   or     a
@@ -7,35 +8,11 @@ loadpattern:
   cp     MAX_PATTERNS
   ret    nc			;Sanity check
 
-  ld     b,a                    ;00000000 aAAAAAAA
-  rrca                          ;0aAAAAAA A0000000
-  and    $80
-  ld     (EEWRADDRL),a
-  ld     a,b
-  srl    a
-  and    $3F
-  inc    a			;Start at $0100
-  ld     (EEWRADDRM),a
-
-  call   readts
-
-  ld     c,$00
-  call   spicom
-  
-  ld     a,$08			; CS high
-  ld     ($2000),a
-  nop
-
-  ld     a,d
-  cp     e
-  jr     z,+
-  ;Bad checksum: whatever, go on, defaults will be restored if needed...
-  ret
-  
+  ; Check if TEMPSECTOR is blank - if so, dont load.
   ld     a,(TEMPSECTOR)
   or     a
-  ret    z			;Blank pattern, don't load
-
+  ret    z			
+; Load the pattern name from TEMPSECTOR.
 +:
   ld     b,8
   ld     hl,PATTNAME
@@ -47,9 +24,10 @@ loadpattern:
   dec    b
   jr     nz,-
   
-  ld     a,$FF			;Security
+  ld     a,$FF			;Add security byte at the end
   ld     (PATTNAME+8),a
 
+; Load the pattern parameters from TEMPSECTOR.
   ld     hl,pparams
   ld     de,TEMPSECTOR+$10
 -:
@@ -75,28 +53,7 @@ loadpattern:
   ld     (bc),a
   inc    de
   jr     -
-+:
-
-
-  ld     a,(EEWRADDRL)
-  or     $40
-  ld     (EEWRADDRL),a
-
-  call   readts
-
-  ld     c,$00
-  call   spicom
-  
-  ld     a,$08			; CS high
-  ld     ($2000),a
-  nop
-
-  ld     a,d
-  cp     e
-  jr     z,+
-  ;Bad checksum:
-  ret
-
+; Load the sequence from TEMPSECTOR.
 +:
   ld     b,16*4
   ld     hl,SEQ
@@ -108,8 +65,14 @@ loadpattern:
   dec    b
   jr     nz,-
 
-  ld    a,(SAVECURPATTSLOT)
-  ld    (CURPATTERN),a
+  ; Reset loading flags
+  xor    a
+  ld     (PATTERN_LOAD_ACTIVE),a
+  ld     (PATTERN_LOAD_PROGRESS),a
+
+  ; Update CURPATTERN
+  ld     a,(SAVECURPATTSLOT)
+  ld     (CURPATTERN),a
 
   ld     a,(CURSCREEN)		; Update pattern name in specific screens (not table, nor memory)
   cp     1
@@ -129,3 +92,72 @@ loadpattern:
   ret    nz
   call   liv_erasepotlinks	; To test !
   jp     liv_drawpotlinks       ; Call+ret
+
+begin_load_pattern:
+  ld     a,1
+  ld     (PATTERN_LOAD_ACTIVE),a
+  ret
+
+load_pattern_section:
+  ld     a,(PATTERN_LOAD_ACTIVE)
+  or     a
+  ret    z  ; Return if we're not actively loading
+
+  ld     a,(PATTERN_LOAD_PROGRESS)
+  cp     8
+  jr     z,+  ; If we've loaded all 8 sections, finish up
+
+  ; Calculate EEPROM address
+  ld     a,(SAVECURPATTSLOT)
+  ld     b,a
+  rrca
+  and    $80
+  ld     (EEWRADDRL),a
+  ld     a,b
+  srl    a
+  and    $3F
+  inc    a           ; Start at $0100
+  ld     (EEWRADDRM),a
+
+  ; Adjust address based on progress
+  ld     a,(PATTERN_LOAD_PROGRESS)
+  sla    a
+  sla    a
+  sla    a  ; Multiply by 8 (each section is 8 bytes)
+  ld     b,0
+  ld     c,a
+  ld     hl,(EEWRADDRL)
+  add    hl,bc
+  ld     a,l
+  ld     (EEWRADDRL),a
+  ld     a,h
+  ld     (EEWRADDRM),a
+
+  ; Load 8 bytes into TEMPSECTOR
+  ld     hl,TEMPSECTOR
+  ld     a,(PATTERN_LOAD_PROGRESS)
+  sla    a
+  sla    a
+  sla    a  ; Multiply by 8
+  ld     d,0
+  ld     e,a
+  add    hl,de
+
+  ; Read 8 bytes from EEPROM
+  ld     b,8
+-:
+  call   spicom
+  ld     (hl),d
+  inc    hl
+  dec    b
+  jr     nz,-
+
+  ld     a,$08        ; CS high
+  ld     ($2000),a
+
+  ; Increment progress
+  ld     a,(PATTERN_LOAD_PROGRESS)
+  inc    a
+  ld     (PATTERN_LOAD_PROGRESS),a
++:
+  ret

@@ -4,6 +4,7 @@ int_play:
   push   de
   push   hl
   call   playv
+  call   load_pattern_section
   pop    hl
   pop    de
   pop    bc
@@ -133,6 +134,22 @@ arpzero:
   ld     (BEAT),a
   ld     a,(NOTEIDX)
   inc    a
+  ; If midway - begin loading next pattern.
+  cp     8
+  jr     nz,+
+  ld     a,(PLAYING)
+  cp     1
+  jr     z,+  ; Skip if in loop mode
+  ld     (SONGPTR),a
+  ld     hl,SONG
+  rst    0
+  cp     $FF
+  jr     z,+  ; Skip if pattern is $FF
+  ld     (SAVECURPATTSLOT),a
+  call   begin_load_pattern
++:
+  ld     a,(NOTEIDX)  ; Reload NOTEIDX
+  inc    a            ; Make sure it's incremented
   cp     16
   jr     nz,+
   ld     a,(PLAYING)
@@ -152,7 +169,6 @@ arpzero:
   call   stopp
   ret
 +++:
-  ld     (SAVECURPATTSLOT),a
   call   loadpattern
 ++:
   xor    a

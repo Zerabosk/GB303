@@ -115,7 +115,7 @@ lut_setupscr:
   .dw    setscreen_table        ;Middle
   .dw    setscreen_seq          ;Middle
   .dw    setscreen_piano        ;Middle
-  .dw    setscreen_xy           ;Middle
+;  .dw    setscreen_xy           ;Middle
   .dw    setscreen_config       ;Middle
   .dw    setscreen_loadsave     ;Bottom
 

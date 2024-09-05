@@ -1,5 +1,5 @@
-; Updated load pattern - now presumes the TEMPSECTOR is already fullyloaded.
-loadpattern:
+; Presumes the PATTERN_LOAD_BUFFER is already fullyloaded.
+loadpattern_buffered:
   ld     a,(HWOK_EE)
   or     a
   ret    z			;No EE operation if EE boot check failed
@@ -8,15 +8,15 @@ loadpattern:
   cp     MAX_PATTERNS
   ret    nc			;Sanity check
 
-  ; Check if TEMPSECTOR is blank - if so, dont load.
-  ld     a,(TEMPSECTOR)
+  ; Check if PATTERN_LOAD_BUFFER is blank - if so, dont load.
+  ld     a,(PATTERN_LOAD_BUFFER)
   or     a
   ret    z			
-; Load the pattern name from TEMPSECTOR.
+; Load the pattern name from PATTERN_LOAD_BUFFER.
 +:
   ld     b,8
   ld     hl,PATTNAME
-  ld     de,TEMPSECTOR+1
+  ld     de,PATTERN_LOAD_BUFFER+1
 -:
   ld     a,(de)
   ldi    (hl),a
@@ -27,9 +27,9 @@ loadpattern:
   ld     a,$FF			;Add security byte at the end
   ld     (PATTNAME+8),a
 
-; Load the pattern parameters from TEMPSECTOR.
+; Load the pattern parameters from PATTERN_LOAD_BUFFER.
   ld     hl,pparams
-  ld     de,TEMPSECTOR+$10
+  ld     de,PATTERN_LOAD_BUFFER+$10
 -:
   ldi    a,(hl)
   or     (hl)
@@ -53,11 +53,11 @@ loadpattern:
   ld     (bc),a
   inc    de
   jr     -
-; Load the sequence from TEMPSECTOR.
+; Load the sequence from PATTERN_LOAD_BUFFER.
 +:
   ld     b,16*4
   ld     hl,SEQ
-  ld     de,TEMPSECTOR
+  ld     de,PATTERN_LOAD_BUFFER+64
 -:
   ld     a,(de)
   ldi    (hl),a
@@ -108,7 +108,9 @@ load_pattern_section:
   jr     z,+  ; If we've loaded all 8 sections, finish up
 
   ; Calculate EEPROM address
-  ld     a,(SAVECURPATTSLOT)
+  ld     a,(SONGPTR)
+  ld     hl,SONG
+  rst    0
   ld     b,a
   rrca
   and    $80
@@ -161,3 +163,135 @@ load_pattern_section:
   ld     (PATTERN_LOAD_PROGRESS),a
 +:
   ret
+  
+loadpattern:
+  ld     a,(HWOK_EE)
+  or     a
+  ret    z			;No EE operation if EE boot check failed
+
+  ld     a,(SAVECURPATTSLOT)
+  cp     MAX_PATTERNS
+  ret    nc			;Sanity check
+
+  ld     b,a                    ;00000000 aAAAAAAA
+  rrca                          ;0aAAAAAA A0000000
+  and    $80
+  ld     (EEWRADDRL),a
+  ld     a,b
+  srl    a
+  and    $3F
+  inc    a			;Start at $0100
+  ld     (EEWRADDRM),a
+
+  call   readts
+
+  ld     c,$00
+  call   spicom
+  
+  ld     a,$08			; CS high
+  ld     ($2000),a
+  nop
+
+  ld     a,d
+  cp     e
+  jr     z,+
+  ;Bad checksum: whatever, go on, defaults will be restored if needed...
+  ret
+  
+  ld     a,(TEMPSECTOR)
+  or     a
+  ret    z			;Blank pattern, don't load
+
++:
+  ld     b,8
+  ld     hl,PATTNAME
+  ld     de,TEMPSECTOR+1
+-:
+  ld     a,(de)
+  ldi    (hl),a
+  inc    de
+  dec    b
+  jr     nz,-
+  
+  ld     a,$FF			;Security
+  ld     (PATTNAME+8),a
+
+  ld     hl,pparams
+  ld     de,TEMPSECTOR+$10
+-:
+  ldi    a,(hl)
+  or     (hl)
+  jr     z,+
+  ldd    a,(hl)		;BC is pointer to variable
+  ld     c,(hl)
+  ld     b,a
+  ld     a,(de)         ;Get EE value
+  inc    hl
+  inc    hl
+  cp     (hl)
+  jr     c,++		;<
+  jr     z,++		;=
+  inc    hl
+  ld     a,(hl)		;OOB: Restore default
+  jr     +++
+++:
+  inc    hl
++++:
+  inc    hl
+  ld     (bc),a
+  inc    de
+  jr     -
++:
+
+
+  ld     a,(EEWRADDRL)
+  or     $40
+  ld     (EEWRADDRL),a
+
+  call   readts
+
+  ld     c,$00
+  call   spicom
+  
+  ld     a,$08			; CS high
+  ld     ($2000),a
+  nop
+
+  ld     a,d
+  cp     e
+  jr     z,+
+  ;Bad checksum:
+  ret
+
++:
+  ld     b,16*4
+  ld     hl,SEQ
+  ld     de,TEMPSECTOR
+-:
+  ld     a,(de)
+  ldi    (hl),a
+  inc    de
+  dec    b
+  jr     nz,-
+
+  ld    a,(SAVECURPATTSLOT)
+  ld    (CURPATTERN),a
+
+  ld     a,(CURSCREEN)		; Update pattern name in specific screens (not table, nor memory)
+  cp     1
+  jr     z,+
+  cp     6
+  jr     nz,++
+  ld    a,(CURSCREEN)
+  cp    6
+  call  z,setscreen
+  ret
+++:
+  cp     2
+  call   z,draw_seq
+  jp     write_pattinfo		; Call+ret
++:
+  or     a
+  ret    nz
+  call   liv_erasepotlinks	; To test !
+  jp     liv_drawpotlinks       ; Call+ret

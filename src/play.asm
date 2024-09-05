@@ -140,12 +140,11 @@ arpzero:
   ld     a,(PLAYING)
   cp     1
   jr     z,+  ; Skip if in loop mode
-  ld     (SONGPTR),a
+  ld     a,(SONGPTR)
   ld     hl,SONG
   rst    0
   cp     $FF
   jr     z,+  ; Skip if pattern is $FF
-  ld     (SAVECURPATTSLOT),a
   call   begin_load_pattern
 +:
   ld     a,(NOTEIDX)  ; Reload NOTEIDX
@@ -169,7 +168,8 @@ arpzero:
   call   stopp
   ret
 +++:
-  call   loadpattern
+    ld     (SAVECURPATTSLOT),a
+    call   loadpattern_buffered
 ++:
   xor    a
 +:

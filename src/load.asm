@@ -9,9 +9,9 @@ loadpattern_buffered:
   ret    nc			;Sanity check
 
   ; Check if PATTERN_LOAD_BUFFER is blank - if so, dont load.
-  ld     a,(PATTERN_LOAD_BUFFER)
-  or     a
-  ret    z			
+;  ld     a,(PATTERN_LOAD_BUFFER)
+;  or     a
+;  ret    z			
 ; Load the pattern name from PATTERN_LOAD_BUFFER.
 +:
   ld     b,8
@@ -104,14 +104,19 @@ load_pattern_section:
   ret    z  ; Return if we're not actively loading
 
   ld     a,(PATTERN_LOAD_PROGRESS)
-  cp     8
-  jr     z,+  ; If we've loaded all 8 sections, finish up
+  cp     16
+  jr     z,++  ; If we've loaded all 16 sections, finish up
 
   ; Calculate EEPROM address
-  ld     a,(SONGPTR)
-  ld     hl,SONG
-  rst    0
-  ld     b,a
+  ld     a,(SONGPTR) ; Get current song pointer
+  inc    a ; Increment it
+  cp     160 ; Check if it's 160 (max song length)
+  jr     nz,+ ; If not, skip the next part
+  xor    a			;Loop at end of song if no $FF (stop) slot
++:
+  ld     hl,SONG ; Load song value into HL
+  rst    0 ; Send it to A
+  ld     b,a ; Move A to B
   rrca
   and    $80
   ld     (EEWRADDRL),a
@@ -135,8 +140,22 @@ load_pattern_section:
   ld     a,h
   ld     (EEWRADDRM),a
 
-  ; Load 8 bytes into TEMPSECTOR
-  ld     hl,TEMPSECTOR
+; Setup EEPROM Read
+  ld     a,$08			; CS high
+  ld     ($2000),a
+  nop
+  ld     a,$00			; CS low
+  ld     ($2000),a
+  nop
+  
+  ld     a,(EEWRADDRL)
+  ld     l,a
+  ld     a,(EEWRADDRM)
+  ld     h,a
+  call   eesetr
+
+  ; Load 8 bytes into PATTERN_LOAD_BUFFER
+  ld     hl,PATTERN_LOAD_BUFFER
   ld     a,(PATTERN_LOAD_PROGRESS)
   sla    a
   sla    a
@@ -148,20 +167,25 @@ load_pattern_section:
   ; Read 8 bytes from EEPROM
   ld     b,8
 -:
+  ld     c,$00
   call   spicom
-  ld     (hl),d
-  inc    hl
+  ld     a,d
+  ldi    (hl),a
   dec    b
   jr     nz,-
 
+  ld     c,$00
+  call   spicom
+
   ld     a,$08        ; CS high
   ld     ($2000),a
+  nop
 
   ; Increment progress
   ld     a,(PATTERN_LOAD_PROGRESS)
   inc    a
   ld     (PATTERN_LOAD_PROGRESS),a
-+:
+++:
   ret
   
 loadpattern:

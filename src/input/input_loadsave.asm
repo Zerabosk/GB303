@@ -343,7 +343,7 @@ mem_paramlist:
   .db $FF,$FF
   .dw prompt_format,0
   .db $FF,$FF
-  .dw setscreen_credits,0
+  ;.dw setscreen_credits,0
 
   .db 0	;EOL
 

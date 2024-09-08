@@ -8,6 +8,11 @@ loadpattern_buffered:
   cp     MAX_PATTERNS
   ret    nc			;Sanity check
 
+; Check if PATTERN_LOAD_BUFFER is blank - if so, dont load.
+  ld     a,(PATTERN_LOAD_BUFFER)
+  or     a
+  ret    z	
+
   ; Clear checksums in PATTERN_LOAD_BUFFER
   xor    a
   ld     (PATTERN_LOAD_BUFFER + $3F), a  ; Clear checksum at 3F
@@ -107,7 +112,7 @@ load_pattern_section:
   ret    z  ; Return if we're not actively loading
 
   ld     a,(PATTERN_LOAD_PROGRESS)
-  cp     8
+  cp     16
   jp     z,++  ; If we've loaded all 16 sections, finish up
 
   ; Calculate EEPROM address
@@ -136,8 +141,10 @@ load_pattern_section:
   add    hl,hl        ; Multiply by 2
   add    hl,hl        ; Multiply by 4
   add    hl,hl        ; Multiply by 8
-  add    hl,hl        ; Multiply by 16
-  ld     bc,(EEWRADDRL)
+  ld     a,(EEWRADDRL)
+  ld     c,a
+  ld     a,(EEWRADDRM)
+  ld     b,a          ; BC now contains the full address
   add    hl,bc
   ld     a,l
   ld     (EEWRADDRL),a
@@ -166,12 +173,11 @@ load_pattern_section:
   add    hl,hl        ; Multiply by 2
   add    hl,hl        ; Multiply by 4
   add    hl,hl        ; Multiply by 8
-  add    hl,hl        ; Multiply by 16
   ld     de,PATTERN_LOAD_BUFFER
   add    hl,de 
 
-  ; Read 16! bytes from EEPROM
-  ld     b,16
+  ; Read 8 bytes from EEPROM
+  ld     b,8
 -:
   ld     c,$00
   call   spicom

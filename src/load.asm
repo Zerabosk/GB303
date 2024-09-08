@@ -104,6 +104,8 @@ load_pattern_buffered:
 load_pattern_begin:
   ld     a,1
   ld     (PATTERN_LOAD_ACTIVE),a
+  xor    a  ; Load 0 into A
+  ld     (PATTERN_LOAD_PROGRESS),a
   ret
 
 load_pattern_section:
@@ -200,12 +202,18 @@ load_pattern_section:
 load_pattern:
   call   load_pattern_begin
   
-  ; Wait for pattern to finish loading
+  ; Load 16 sections
+  ld b,16
 -:
+  push   bc
+  call   load_pattern_section
+  pop    bc
   ld     a,(PATTERN_LOAD_ACTIVE)
   or     a
+  jr     z,+  ; If loading is no longer active, exit loop
+  dec    b
   jr     nz,-
-
++:
   call   load_pattern_buffered
 
   ret

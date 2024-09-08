@@ -8,12 +8,15 @@ loadpattern_buffered:
   cp     MAX_PATTERNS
   ret    nc			;Sanity check
 
-  ; Check if PATTERN_LOAD_BUFFER is blank - if so, dont load.
-;  ld     a,(PATTERN_LOAD_BUFFER)
-;  or     a
-;  ret    z			
-; Load the pattern name from PATTERN_LOAD_BUFFER.
-+:
+  ; Clear checksums in PATTERN_LOAD_BUFFER
+  xor    a
+  ld     (PATTERN_LOAD_BUFFER + $3F), a  ; Clear checksum at 3F
+  ld     (PATTERN_LOAD_BUFFER + $7F), a  ; Clear checksum at 7F
+
+  ; Clear the single byte after 7F
+  ld     (PATTERN_LOAD_BUFFER + $80), a  ; Clear byte at 80 (128th byte)
+
+  ; Load the pattern name from PATTERN_LOAD_BUFFER.
   ld     b,8
   ld     hl,PATTNAME
   ld     de,PATTERN_LOAD_BUFFER+1
@@ -104,8 +107,8 @@ load_pattern_section:
   ret    z  ; Return if we're not actively loading
 
   ld     a,(PATTERN_LOAD_PROGRESS)
-  cp     16
-  jr     z,++  ; If we've loaded all 16 sections, finish up
+  cp     8
+  jp     z,++  ; If we've loaded all 16 sections, finish up
 
   ; Calculate EEPROM address
   ld     a,(SONGPTR) ; Get current song pointer
@@ -128,12 +131,13 @@ load_pattern_section:
 
   ; Adjust address based on progress
   ld     a,(PATTERN_LOAD_PROGRESS)
-  sla    a
-  sla    a
-  sla    a  ; Multiply by 8 (each section is 8 bytes)
-  ld     b,0
-  ld     c,a
-  ld     hl,(EEWRADDRL)
+  ld     l,a
+  ld     h,0          ; HL now contains PATTERN_LOAD_PROGRESS
+  add    hl,hl        ; Multiply by 2
+  add    hl,hl        ; Multiply by 4
+  add    hl,hl        ; Multiply by 8
+  add    hl,hl        ; Multiply by 16
+  ld     bc,(EEWRADDRL)
   add    hl,bc
   ld     a,l
   ld     (EEWRADDRL),a
@@ -157,15 +161,17 @@ load_pattern_section:
   ; Load 8 bytes into PATTERN_LOAD_BUFFER
   ld     hl,PATTERN_LOAD_BUFFER
   ld     a,(PATTERN_LOAD_PROGRESS)
-  sla    a
-  sla    a
-  sla    a  ; Multiply by 8
-  ld     d,0
-  ld     e,a
-  add    hl,de
+  ld     l,a
+  ld     h,0          ; HL now contains PATTERN_LOAD_PROGRESS
+  add    hl,hl        ; Multiply by 2
+  add    hl,hl        ; Multiply by 4
+  add    hl,hl        ; Multiply by 8
+  add    hl,hl        ; Multiply by 16
+  ld     de,PATTERN_LOAD_BUFFER
+  add    hl,de 
 
-  ; Read 8 bytes from EEPROM
-  ld     b,8
+  ; Read 16! bytes from EEPROM
+  ld     b,16
 -:
   ld     c,$00
   call   spicom
@@ -173,9 +179,6 @@ load_pattern_section:
   ldi    (hl),a
   dec    b
   jr     nz,-
-
-  ld     c,$00
-  call   spicom
 
   ld     a,$08        ; CS high
   ld     ($2000),a

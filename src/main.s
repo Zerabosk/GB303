@@ -405,7 +405,7 @@ playstop:
   ret    z
   push   bc
   ld     (SAVECURPATTSLOT),a
-  call   loadpattern
+  call   load_pattern ; Now uses buffered solution.
   pop    bc
   ld     a,c
 +++:

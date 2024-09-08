@@ -119,7 +119,7 @@ prompt_savepatt:
   ret
   
 prompt_loadpatt:
-  ld     hl,loadpattern
+  ld     hl,load_pattern ; Now uses buffered solution.
   ld     a,l
   ld     (KBCALLBACK),a
   ld     a,h
@@ -343,7 +343,7 @@ mem_paramlist:
   .db $FF,$FF
   .dw prompt_format,0
   .db $FF,$FF
-  ;.dw setscreen_credits,0
+  .dw setscreen_credits,0
 
   .db 0	;EOL
 

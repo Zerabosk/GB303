@@ -145,7 +145,7 @@ arpzero:
   rst    0
   cp     $FF
   jr     z,+  ; Skip if pattern is $FF
-  call   begin_load_pattern
+  call   load_pattern_begin
 +:
   ld     a,(NOTEIDX)  ; Reload NOTEIDX
   inc    a            ; Make sure it's incremented
@@ -169,7 +169,7 @@ arpzero:
   ret
 +++:
     ld     (SAVECURPATTSLOT),a
-    call   loadpattern_buffered
+    call   load_pattern_buffered
 ++:
   xor    a
 +:

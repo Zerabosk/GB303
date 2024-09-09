@@ -4,7 +4,7 @@ load_pattern_buffered:
   or     a
   ret    z			;No EE operation if EE boot check failed
 
-  ld     a,(SAVECURPATTSLOT)
+  ld     a,(PATTERN_LOAD_POINTER)
   cp     MAX_PATTERNS
   ret    nc			;Sanity check
 
@@ -77,9 +77,10 @@ load_pattern_buffered:
   xor    a
   ld     (PATTERN_LOAD_ACTIVE),a
   ld     (PATTERN_LOAD_PROGRESS),a
-
+  call   clear_load_buffer
+  
   ; Update CURPATTERN
-  ld     a,(SAVECURPATTSLOT)
+  ld     a,(PATTERN_LOAD_POINTER)
   ld     (CURPATTERN),a
 
   ld     a,(CURSCREEN)		; Update pattern name in specific screens (not table, nor memory)
@@ -118,12 +119,7 @@ load_pattern_section:
   jp     z,++  ; If we've loaded all 16 sections, finish up
 
   ; Calculate EEPROM address
-  ld     a,(SONGPTR) ; Get current song pointer
-  inc    a ; Increment it
-  cp     160 ; Check if it's 160 (max song length)
-  jr     nz,+ ; If not, skip the next part
-  xor    a			;Loop at end of song if no $FF (stop) slot
-+:
+  ld     a,(PATTERN_LOAD_POINTER)
   ld     hl,SONG ; Load song value into HL
   rst    0 ; Send it to A
   ld     b,a ; Move A to B
@@ -196,10 +192,19 @@ load_pattern_section:
   ld     a,(PATTERN_LOAD_PROGRESS)
   inc    a
   ld     (PATTERN_LOAD_PROGRESS),a
+  cp     16
+  jr     z,+
+  jr     ++  ; If we've not finished loading, return
++:
+  ; Reset loading flag
+  xor    a
+  ld     (PATTERN_LOAD_ACTIVE),a
 ++:
   ret
   
 load_pattern:
+  ld     a,(SAVECURPATTSLOT)
+  ld     (PATTERN_LOAD_POINTER),a
   call   load_pattern_begin
   
   ; Load 16 sections
@@ -217,3 +222,8 @@ load_pattern:
   call   load_pattern_buffered
 
   ret
+
+clear_load_buffer:
+  ld     hl,PATTERN_LOAD_BUFFER
+  ld     bc,128
+  jp     clear

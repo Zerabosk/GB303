@@ -253,6 +253,8 @@ start:
   ld     (BEND),a
   ld     (MIDIBPUT),a
   ld     (MIDIBGET),a
+  ld     (PATTERN_LOAD_ACTIVE),a ; Initialise loading flag
+  ld     (PATTERN_LOAD_PROGRESS),a ; Initialise progress
   ld     a,1
   ld     (DRUMSMUTE),a
   ld     a,8

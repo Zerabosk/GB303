@@ -207,6 +207,7 @@ load_pattern:
   ld     (PATTERN_LOAD_POINTER),a
   call   load_pattern_begin
   
+  di
   ; Load 16 sections
   ld b,16
 -:
@@ -219,6 +220,7 @@ load_pattern:
   dec    b
   jr     nz,-
 +:
+  ei
   call   load_pattern_buffered
 
   ret

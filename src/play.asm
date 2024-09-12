@@ -141,6 +141,7 @@ arpzero:
   cp     1
   jr     z,+  ; Skip if in loop mode
   ld     a,(SONGPTR)
+  inc    a
   ld     hl,SONG
   rst    0
   cp     $FF

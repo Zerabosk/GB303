@@ -111,13 +111,13 @@ setscreen:
   jp     hl
 
 lut_setupscr:
-  .dw    setscreen_live		;Top
-  .dw    setscreen_table        ;Middle
-  .dw    setscreen_seq          ;Middle
-  .dw    setscreen_piano        ;Middle
-  .dw    setscreen_xy           ;Middle
-  .dw    setscreen_config       ;Middle
-  .dw    setscreen_loadsave     ;Bottom
+  .dw    setscreen_live		;Top - CURSCREEN 0
+  .dw    setscreen_table        ;Middle - CURSCREEN 1
+  .dw    setscreen_seq          ;Middle - CURSCREEN 2
+  .dw    setscreen_piano        ;Middle - CURSCREEN 3
+  .dw    setscreen_xy           ;Middle - CURSCREEN 4
+  .dw    setscreen_config       ;Middle - CURSCREEN 5
+  .dw    setscreen_loadsave     ;Bottom - CURSCREEN 6
 
 ss_common:
   call   clearsprites

@@ -58,7 +58,7 @@ draw_seq:
   pop    bc
   dec    b
   jr     nz,-
-  call   show_play_head
+  call showcur_seq
   ret
 
 getnotename:

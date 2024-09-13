@@ -253,6 +253,8 @@ start:
   ld     (BEND),a
   ld     (MIDIBPUT),a
   ld     (MIDIBGET),a
+  ld     (PATTERN_LOAD_ACTIVE),a ; Initialise loading flag
+  ld     (PATTERN_LOAD_PROGRESS),a ; Initialise progress
   ld     a,1
   ld     (DRUMSMUTE),a
   ld     a,8
@@ -262,8 +264,8 @@ start:
   ld     a,$18
   ld     (SLIDESPEED),a
 
-  call   eebootcheck         ; Disabled just for testing
-  call   adcbootcheck        ; Disabled just for testing
+  call   eebootcheck         ; Disable just for testing
+  call   adcbootcheck        ; Disable just for testing
   ;ld     a,1                  ; Load 1 into accumulator (hardware check passed)
   ;ld     (HWOK_EE),a          ; Set HWOK_EE to passed.
   ;ld     (HWOK_ADC),a         ; Set HWOK_ADC to passed.
@@ -405,7 +407,7 @@ playstop:
   ret    z
   push   bc
   ld     (SAVECURPATTSLOT),a
-  call   loadpattern
+  call   load_pattern ; Now uses buffered solution.
   pop    bc
   ld     a,c
 +++:
@@ -438,23 +440,44 @@ stopp:
   ldh    ($21),a		;CH4 off
   ret
 
+;defaultseq:
+;; .db Notes, Drums, Accent&slide, Arp (I think)
+;  .db $A4,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+;  .db $0C,$08,0,0
+
+; For testing
 defaultseq:
-  .db $98,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $8C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $8C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $8C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
-  .db $0C,0,0,0
+; .db Notes, Drums, Accent&slide, Arp (I think)
+  .db $A4,$10,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$10,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$10,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$10,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
+  .db $0C,$08,0,0
 
 cutofflut:
   .INCBIN "tables\cutofflut.bin"

@@ -60,6 +60,11 @@ CUTOFFEG DB
 SYNTHLR DB
 DRUMSLR DB
 
+PATTERN_LOAD_PROGRESS: DB  ; Tracks how much of the pattern has been loaded
+PATTERN_LOAD_ACTIVE: DB    ; Flag to indicate if we're in the process of loading
+PATTERN_LOAD_POINTER: DB  ; Pointer to the pattern to load from SONG
+PATTERN_LOAD_BUFFER: DS 128 ; Too big...? Why is TEMPSECTOR 64?
+
 ;SEQTEMP DS 16		;Used for drawing preview in loadsave
 
 SEQ DS 4*16
@@ -93,9 +98,9 @@ EEWRADDRL DB
 EEWRADDRM DB
 
 SAVECURSONGSLOT DB      ;Playhead save song number
-SAVECURPATTSLOT DB	;Playhead save pattern number
+SAVECURPATTSLOT DB	;Playhead save pattern number (Its a pointer to the pattern in SONG -Z)
 
-CURPATTERN DB		;Currently loaded pattern
+CURPATTERN DB		;Currently loaded pattern (Its a pointer to the pattern in SONG -Z)
 PATTNAME DS 9
 
 SCREENMAP DB

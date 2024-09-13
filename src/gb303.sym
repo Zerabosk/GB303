@@ -406,7 +406,7 @@
 0000:3124 paramload
 0000:315e savepattern
 0000:31fa eetosave
-0000:31fb loadpattern
+0000:31fb load_pattern
 0000:32b3 savesong
 0000:338a loadsong
 0000:3486 savegparams

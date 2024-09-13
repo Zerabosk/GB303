@@ -177,7 +177,7 @@ loadsong:
   cp     $FF
   jr     z,+
   ld     (SAVECURPATTSLOT),a
-  call   loadpattern
+  call   load_pattern ; Now uses buffered solution.
 +:
 
   call  setstereo

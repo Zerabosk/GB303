@@ -119,7 +119,7 @@ prompt_savepatt:
   ret
   
 prompt_loadpatt:
-  ld     hl,loadpattern
+  ld     hl,load_pattern ; Now uses buffered solution.
   ld     a,l
   ld     (KBCALLBACK),a
   ld     a,h

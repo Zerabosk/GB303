@@ -24,7 +24,7 @@ input_seq:
   ld     a,(SEQ_CURY)
   or     a
   jr     nz,++
-  ld     a,15			;Wrap around
+  ld     a,16			;Wrap around
 ++:
   dec    a
   ld     (SEQ_CURY),a

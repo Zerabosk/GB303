@@ -15,7 +15,7 @@ GB303 wavetable-based TB-303 style synthesizer for the Nintendo Gameboy.
 - [ ] Nanoloop misses random beats from GB-303 when in Nanoloop Master mode.
 - [ ] LSDJ Slave sync is late.
 - [ ] Full MIDI mode misses notes randomly. Especially bad when playing fast.
-- [ ] Pattern names get overwitten (randomly? Maybe to do with saves happening on song start?)
+- [x] Pattern names get overwitten (randomly? Maybe to do with saves happening on song start?)
 
 ![GB303 prototype](img/prot.jpg)
 

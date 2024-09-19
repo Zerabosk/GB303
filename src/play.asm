@@ -146,7 +146,7 @@ arpzero:
   rst    0
   cp     $FF
   jr     z,+  ; Skip if pattern is $FF
-  ld     (PATTERN_LOAD_POINTER),a
+  ld     (SAVECURPATTSLOT),a
   call   load_pattern_begin
 +:
   ld     a,(NOTEIDX)  ; Reload NOTEIDX

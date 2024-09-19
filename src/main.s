@@ -141,13 +141,42 @@
   ret
 
 .ORG $0040
-  jp     vblank
+vblank:
+  push   af
+  ld     a,1
+  ld     (VBL),a
+  pop    af
+  reti
 
 .ORG $0048
   jp     hblank
 
 .ORG $0050
-  jp     timer
+timer:
+  push   af
+  ld     a,(SYNCMODE)		;Only activate internal sync when SYNCMODE = NONE
+  cp     SYNC_NONE
+  jr     z,+
+  cp     SYNC_NANO
+  jr     z,+
+  jr     ++
++:
+  push   hl
+  ;Handle beat tick
+  ld     hl,BPM_MATCH
+  ld     a,(BPM_CNT)
+  inc    a
+  cp     (hl)
+  jr     c,+
+  ld     a,1
+  ld     (BEAT),a
+  dec    a
++:
+  ld     (BPM_CNT),a
+  pop    hl
+++:
+  pop    af
+  reti
 
 .ORG $0058
   jp     serial
@@ -383,6 +412,17 @@ playstop:
   ld     a,(PLAYING)
   or     a
   jr     nz,stopp
+  ld     hl,PATTNAME
+  ld     de,TEMPNAME
+  ld     b,8
+-:
+  ldi    a,(hl)       ; Load byte from (hl) to a, and increment hl
+  ld     (de),a       ; Store a to (de)
+  inc    de           ; Increment de
+  dec    b            ; Decrement the counter
+  jr     nz,- ; If not zero, continue loop
+  ld     a,$FF        ; Add security byte at the end
+  ld     (de),a ;TEMPNAME can be empty or contains last saved pattern name.
   ld     a,(CURPATTERN)
   ld     (SAVECURPATTSLOT),a
   call   savepattern		;Save last edited pattern

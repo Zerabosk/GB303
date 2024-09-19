@@ -4,7 +4,7 @@ load_pattern_buffered:
   or     a
   ret    z			;No EE operation if EE boot check failed
 
-  ld     a,(PATTERN_LOAD_POINTER)
+  ld     a,(SAVECURPATTSLOT)
   cp     MAX_PATTERNS
   ret    nc			;Sanity check
 
@@ -80,7 +80,7 @@ load_pattern_buffered:
   call   clear_load_buffer
   
   ; Update CURPATTERN
-  ld     a,(PATTERN_LOAD_POINTER)
+  ld     a,(SAVECURPATTSLOT)
   ld     (CURPATTERN),a
 
   ld     a,(CURSCREEN)		; Update pattern name in specific screens (not table, nor memory)
@@ -119,9 +119,7 @@ load_pattern_section:
   jp     z,++  ; If we've loaded all 16 sections, finish up
 
   ; Calculate EEPROM address
-  ld     a,(PATTERN_LOAD_POINTER)
-  ld     hl,SONG ; Load song value into HL
-  rst    0 ; Send it to A
+  ld     a,(SAVECURPATTSLOT)
   ld     b,a ; Move A to B
   rrca
   and    $80
@@ -204,7 +202,7 @@ load_pattern_section:
   
 load_pattern:
   ld     a,(SAVECURPATTSLOT)
-  ld     (PATTERN_LOAD_POINTER),a
+  ld     (SAVECURPATTSLOT),a
   call   load_pattern_begin
   
   di

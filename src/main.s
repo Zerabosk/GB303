@@ -152,31 +152,7 @@ vblank:
   jp     hblank
 
 .ORG $0050
-timer:
-  push   af
-  ld     a,(SYNCMODE)		;Only activate internal sync when SYNCMODE = NONE
-  cp     SYNC_NONE
-  jr     z,+
-  cp     SYNC_NANO
-  jr     z,+
-  jr     ++
-+:
-  push   hl
-  ;Handle beat tick
-  ld     hl,BPM_MATCH
-  ld     a,(BPM_CNT)
-  inc    a
-  cp     (hl)
-  jr     c,+
-  ld     a,1
-  ld     (BEAT),a
-  dec    a
-+:
-  ld     (BPM_CNT),a
-  pop    hl
-++:
-  pop    af
-  reti
+  jp     timer
 
 .ORG $0058
   jp     serial

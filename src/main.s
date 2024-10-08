@@ -332,26 +332,6 @@ start:
   call   setscreen
 
 ml:
-  ;Handle serial receive
-  ld      a,(SYNCMODE)
-  cp      SYNC_LSDJMIDI
-  jr      z,+
-  cp      SYNC_NANO
-  jr      z,++
-  ld      a,$80         ;Slave
-  ldh     ($02),a
-  jr      ++
-+:
-  ld      a,$81		;Master
-  ldh     ($02),a
-++:
-
-  ld     a,(MIDIBPUT)
-  ld     b,a
-  ld     a,(MIDIBGET)
-  cp     b
-  call   nz,serialhnd
-
   ld     a,(VBL)
   or     a
   jr     z,ml

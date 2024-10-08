@@ -3,12 +3,8 @@ serial:
   push    bc
   push    de
   push    hl
-  ld      hl,MIDIBUFFER
-  ld      a,(MIDIBPUT)
-  add     l
-  jr      nc,+
-  inc     h
-+:
+  ld      h,>MIDIBUFFER ; Load the high byte of MIDIBUFFER (its aligned to $C000)
+  ldh     a,(<MIDIBPUT) ; Load the low byte of MIDIBUFFER (Its in HRAM, thus it always starts with $FF)
   ld      l,a
   ldh     a,($01)
   ld      (hl),a
@@ -16,16 +12,8 @@ serial:
   inc     a
   and     $3F
   ld      (MIDIBPUT),a
+  
   call    serialhnd
-
-  ld      a,(SYNCMODE)
-  cp      SYNC_LSDJMIDI
-  jr      z,+
-  cp      SYNC_NANO
-  jr      z,+
-  ld      a,$80         ;Slave
-  ldh     ($02),a
-+:
 
   pop     hl
   pop     de
@@ -74,11 +62,7 @@ sy_common:
   ld      (MIDIBGET),a
   dec     a
   and     $3F
-  ld      hl,MIDIBUFFER
-  add     l
-  jr      nc,+
-  inc     h
-+:
+  ld      h,>MIDIBUFFER ; Load the high byte of MIDIBUFFER (its aligned to $C000)
   ld      l,a
   ld      a,(hl)
   ret
@@ -209,52 +193,5 @@ getMIDIbyteinc:
   and     $3F
   ld      (MIDIBGET),a
   ld      a,b
-  ret
-
-
-;serialhnd:
-  ld      a,(LINK_RX)
-  cp      $FF
-  jr      z,+		;No LSDJ
-  cp      $70
-  jr      c,+           ;Invalid or no new message
-  cp      $7F
-  jr      z,+           ;Special
-  cp      $7E
-  jr      z,+
-  cp      $7D
-  jr      z,+
-
-  sub     $70
-  ld      b,a
-  ld      a,(LASTSERIAL)
-  cp      $80
-  ld      a,b
-  jr      nz,++
-  cp      $10
-  jr      nz,+++
-  jr      ++
-+++:
-  ld      (TOPLAY),a
-++:
-  ld      (LASTSERIAL),a
-+:
-  ;ld      a,(LSDJTICK)
-  ;inc     a
-  ;cp      24
-  ;jr      nz,+
-  ;ld      a,1
-  ;ld      (LSDJSTEP),a
-  ;xor     a
-+:
-  ;ld      (LSDJTICK),a
-  ;ld      a,$80
-  ;ldh     ($02),a
-  
-  ;call    play
-  
-  xor    a
-  ldh    ($01),a
-  ldh    ($02),a
   ret
 

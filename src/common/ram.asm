@@ -44,7 +44,7 @@ ARPOFFSET DB			;Current semitone offset caused by arpeggiator to add to current 
 MAP_FIRST DB
 MAP_W DB
 DOSLIDE DB
-LSDJTICK DB
+SYNCTICK DB
 PLAYING DB			;0: Pause, 1: Playing pattern, 2: Playing song
 ACCENT DB
 CURSCREEN DB

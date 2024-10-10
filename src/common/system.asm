@@ -113,20 +113,23 @@ timer:
   ld     a,(SYNCMODE)	;Only activate internal sync when GB303 is Master (No Sync, LSDJ Master, Nanoloop Master)
   ; LSDJ Slave
   cp     SYNC_LSDJS
-  jr     nz,+
+  jr     z,+
+  ; Nanoloop Slave
+  cp     SYNC_NANO
+  jr     z,+
+  jr     ++
++:
   ld     a,$FF          ; $FF Fastest poossible clock
   ldh    ($06),a        ; Load it into the modulo register
   ; Handle serial receive
   ldh    a,($02)        ; Load SC register
   bit    7,a            ; Check bit 7 (Transfer enable)
-  jr     nz,+           ; Jump to + Transfer is enabled
+  jr     nz,++           ; Jump to + Transfer is enabled
   ld     a,$80          ; Otherwise, set to slave mode
   ldh    ($02),a        
-+:
+++:
   ; GB303 Master
   cp     SYNC_NONE
-  jr     z,+
-  cp     SYNC_NANO
   jr     z,+
   jr     ++
 +:

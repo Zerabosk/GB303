@@ -26,36 +26,9 @@ playv:
   cp     SYNC_LSDJMIDI
   jr     z,play_midi
   cp     SYNC_NANO
-  jr     z,play_nano
+  jr     z,play_internal
 
   ret
-
-
-play_nano:
-  ld     a,(BEAT)
-  or     a
-  ret    z
-  ld     c,3
---:
-  ld     a,$FF
-  ldh    ($01),a
-  ld     a,$81		;Master
-  ldh    ($02),a
-  ld     b,$FF
--:
-  dec    b
-  jr     nz,-
-  ld     a,$00
-  ldh    ($01),a
-  ld     a,$81		;Master
-  ldh    ($02),a
-  ld     b,$FF
--:
-  dec    b
-  jr     nz,-
-  dec    c
-  jr     nz,--
-  jp     play_internal
 
 play_midi:
   ld     a,(MIDINOTECMD)

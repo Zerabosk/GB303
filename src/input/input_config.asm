@@ -223,6 +223,7 @@ cfg_updsync_a:
   ld     e,a
   ld     hl,$9800+(32*4)+6
   call   maptext
+  call   setbpm ;Update incase LSDJ Slave was selected and TMA (timer modulo) was set to $FF.
   ret
 
 cfg_updlforoute:

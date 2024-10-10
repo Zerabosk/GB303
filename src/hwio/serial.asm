@@ -31,9 +31,9 @@ serialhnd:
   cp      SYNC_LSDJMIDI
   jr      z,sync_lsdjmidi
   cp      SYNC_NANO
-  ret     z
+  jr      z,synch_nanoslave
   cp      SYNC_MIDI
-  jr      z,synch_midi
+  jp      z,synch_midi
   ret
 
 sync_lsdjmidi:
@@ -67,27 +67,54 @@ sy_common:
   ld      a,(hl)
   ret
 
+synch_nanoslave:
+  call    sy_common
+  or      a
+  ret     z
+  ld      a,(PLAYING) ; Start playing as soon as we get a non-zero byte.
+  or      a
+  jr      nz,+
+  xor     a
+  ld      (SONGPTR),a
+  ld      a,-1        ; First tick is ignored on start
+  ld      (SYNCTICK),a
+  ld      a,2			;Start to play song from start
+  ld      (PLAYING),a
+  call    pscommon
+  ret
++:
+  ld      a,(SYNCTICK)
+  inc     a
+  cp      3            ; 24 MIDI clocks per beat, 8 Gameboy clocks per byte, 1 byte per tick - so 24 / 8 = 3 bytes per beat!
+  jr      nz,+
+  ld      a,1
+  ld      (BEAT),a
+  xor     a
++:
+  ld      (SYNCTICK),a
+  ret
+
 synch_lsdjslave:
   call    sy_common
   or      a
   jr      nz,+
   xor     a
   ld      (SONGPTR),a
-  ld      (LSDJTICK),a
+  ld      (SYNCTICK),a
   ld      a,2			;Start to play song from start
   ld      (PLAYING),a
   call    pscommon
   ret
 +:
-  ld      a,(LSDJTICK)
+  ld      a,(SYNCTICK)
   inc     a
-  cp      6
+  cp      6            ; 6 ticks per beat (One per groove tick)
   jr      nz,+
   ld      a,1
   ld      (BEAT),a
   xor     a
 +:
-  ld      (LSDJTICK),a
+  ld      (SYNCTICK),a
   ret
 
 synch_midi:

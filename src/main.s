@@ -358,8 +358,6 @@ playstop:
   or     a
   cp     SYNC_NONE
   jr     z,+
-  cp     SYNC_NANO
-  jr     z,+
   jr     stopp
 +:
   ld     a,(JOYP_CURRENT)	;+Select ?

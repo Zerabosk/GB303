@@ -40,17 +40,21 @@ sync_lsdjmidi:
   call    sy_common
   or      a
   ret     z
-  cp      $80
+  cp      $80 ; anything below $80 we ignore
   ret     c
-  cp      $FD
+  cp      $F0 ; Dunno wot these are but ignore?
   ret     z
-  cp      $FE
+  cp      $FD ; Start sequence
   ret     z
+  cp      $FE  ; Stop Sequence
+  jr      z,+
   and     $7F
   jr      z,+
   ld      (MIDINOTENB),a
   ld      a,1			;Note on
   ld      (MIDINOTECMD),a
+  ld      a,1
+  ld      (PLAYING),a ; Start playing
   ret
 +:
   ld      a,2			;Note off

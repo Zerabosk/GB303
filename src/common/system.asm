@@ -124,7 +124,7 @@ timer:
   ; Handle serial receive
   ldh    a,($02)        ; Load SC register
   bit    7,a            ; Check bit 7 (Transfer enable)
-  jr     nz,++           ; Jump to + Transfer is enabled
+  jr     nz,++           ; Jump to ++ Transfer is enabled
   ld     a,$80          ; Otherwise, set to slave mode
   ldh    ($02),a        
 ++:

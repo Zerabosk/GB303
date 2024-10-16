@@ -12,6 +12,15 @@ int_play:
   reti
 
 playv:
+  ; LSDJ MIDI Sync Setup
+  ld      a,(SYNCMODE)
+  cp      SYNC_LSDJMIDI
+  jr      nz,+
+  xor     a
+  ld      ($01),a
+  ld      a,$81		;Master
+  ldh     ($02),a
++:
   ld     a,(PLAYING)
   or     a
   ret    z

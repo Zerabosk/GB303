@@ -7,14 +7,16 @@ GB303 wavetable-based TB-303 style synthesizer for the Nintendo Gameboy.
 - [x] Independent cursor movement on sequencer screen during playback. 
 - [ ] Replace EEPROM with SRAM & update schematics for more reiable saves.
 - [ ] Change POTS via MIDI CC messages.
+- [ ] Change POTS with LSDJ MIDI CC messages.
 - [ ] LSDJ Slave sync when looping a single pattern (currently forces song mode)
 - [ ] Konamicode etch-a-sketch mode. (maybe)
 ###### Fix known bugs:
 - [x] Beat skip when patten changes in song mode.
 - [ ] Beat skip when patten changes in song mode on Pattern page. (Screen redraw too slow)
-- [x] Nanoloop misses random beats from GB-303 when in Nanoloop Master mode. 
--- Replaced with working Nanoloop slave mode.
+- [x] Nanoloop misses random beats from GB-303 when in Nanoloop Master mode (Now Nanoloop slave mode)
+- [ ] Nanoloop 2 sync doesn't work.
 - [x] LSDJ Slave sync is late.
+- [x] LSDJ MIDI sync doesn't work.
 - [ ] Full MIDI mode misses notes randomly. Especially bad when playing fast.
 - [x] Pattern names get overwitten (randomly? Maybe to do with saves happening on song start?)
 - [ ] Pattern page redraw function is slow and causes delays when changing patterns.

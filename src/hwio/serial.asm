@@ -42,12 +42,14 @@ sync_lsdjmidi:
   ret     z
   cp      $80 ; anything below $80 we ignore
   ret     c
-  cp      $F0 ; Dunno wot these are but ignore?
+  cp      $F0 ; Think this is Velocity 0? (ignore for now)
   ret     z
-  cp      $FD ; Start sequence
+  cp      $FF ; Usually disconnected link cable. (ignore)
   ret     z
-  cp      $FE  ; Stop Sequence
-  jr      z,+
+  cp      $FD ; Start sequence (ignore)
+  ret     z
+  cp      $FE  ; Stop Sequence (ignore) 
+  ret     z
   and     $7F
   jr      z,+
   ld      (MIDINOTENB),a
@@ -225,4 +227,3 @@ getMIDIbyteinc:
   ld      (MIDIBGET),a
   ld      a,b
   ret
-

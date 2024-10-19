@@ -1,7 +1,7 @@
 .ENUM $C000 EXPORT
 MIDIBUFFER DS 64 ; Putting this here gives it the ADDRESS $C000 - which is aligned to 8 bytes - I cant figure out how to do it properly. :(
 ;MIDIBPUT DB - Stuck in HRAM now
-MIDIBGET DB
+;MIDIBGET DB - Stuck in HRAM now
 
 MIDINOTENB DB
 MIDINOTECMD DB 
@@ -177,6 +177,7 @@ PREVSONGPTR DB
 
 .RAMSECTION "HRAM Variables" BANK 0 SLOT 2
 MIDIBPUT DB
+MIDIBGET DB
 .ENDS
 
 .DEFINE POTLINK_NOTHING		0

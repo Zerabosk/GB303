@@ -4,7 +4,7 @@ serial:
   push    de
   push    hl
   ld      h,>MIDIBUFFER ; Load the high byte of MIDIBUFFER (its aligned to $C000)
-  ldh     a,(<MIDIBPUT) ; Load the low byte of MIDIBUFFER (Its in HRAM, thus it always starts with $FF)
+  ldh     a,(<MIDIBPUT) ; Load the low byte of MIDIBPUT (Its in HRAM, thus it always starts with $FF)
   ld      l,a
   ldh     a,($01)
   ld      (hl),a
@@ -33,7 +33,8 @@ serialhnd:
   cp      SYNC_NANO
   jr      z,synch_nanoslave
   cp      SYNC_MIDI
-  jp      z,synch_midi
+;  jp      z,synch_midi
+  ret     z
   ret
 
 sync_lsdjmidi:
@@ -139,23 +140,37 @@ synch_midi:
   ld      (MIDIBGET),a		;Matched put pointer and didn't find anything
   ret
 +:
-  ld      hl,MIDIBUFFER
-  add     l
-  jr      nc,+
-  inc     h
-+:
+  ld      h,>MIDIBUFFER ; Load the high byte of MIDIBUFFER (its aligned to $C000)
   ld      l,a
   ld      a,(hl)
-  and     $F0			;Ignore channel
-  cp      $90			;Note on any channel
+  and     $F0			;Mask lower nibble to ignore channel (We only support 1 channel)
+;  cp      $B0			;CC - Next two bytes are CC number and value
+;  jr      z,midi_cc
+;  cp      $C0     ;Program change - Next byte is program number
+;  jr      z,midi_program
+;  cp      $E0     ;Pitch bend - Next two bytes are pitch bend amount
+;  jr      z,midi_pitchbend
+  cp      $90			;Note on - Next two bytes are note and velocity
   jr      z,midi_noteon
-  cp      $80
+  cp      $80     ;Note off - Next two bytes are note and velocity
   jr      z,midi_noteoff
+
+  ; If we reach here, the current byte is not a valid status byte
+  inc     c            ; Increment the invalid byte counter
+  ld      a,c
+  cp      30           ; Check if we've encountered 30 consecutive invalid bytes
+  jr      z,resync     ; If so, jump to the resynchronization routine
+
   ld      a,b
   inc     a
   and     $3F
   ld      b,a
   jr      -
+
+resync:
+  ld      a,(MIDIBPUT)
+  ld      (MIDIBGET),a ; Set MIDIBGET to MIDIPUT, effectively discarding the invalid data
+  ret
 
 midi_noteoff:
   call    MIDI3bytes
@@ -208,17 +223,13 @@ MIDI3bytes:
   sub     b
   and     $3F
   pop     bc
-  cp      3
+  cp      3 ; Check if MIDIBGET and MIDIBPUT are 3 bytes apart.
   ret
 
 getMIDIbyteinc:
-  ld      hl,MIDIBUFFER
-  ld      a,(MIDIBGET)
+  ld      h,>MIDIBUFFER ; Load the high byte of MIDIBUFFER (its aligned to $C000)
+  ldh     a,(<MIDIBGET) ; Load the low byte of MIDIBGET (Its in HRAM, thus it always starts with $FF)
   ld      b,a
-  add     l
-  jr      nc,+
-  inc     h
-+:
   ld      l,a
   ld      a,b
   ld      b,(hl)

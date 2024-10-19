@@ -21,6 +21,17 @@ playv:
   ld      a,$81		;Master
   ldh     ($02),a
 +:
+
+  ld     a,(SYNCMODE)
+  cp     SYNC_MIDI
+  jr     nz,+
+  ld     a,(MIDIBPUT)
+  ld     b,a
+  ld     a,(MIDIBGET)
+  cp     b
+  call   nz,synch_midi
++:
+
   ld     a,(PLAYING)
   or     a
   ret    z

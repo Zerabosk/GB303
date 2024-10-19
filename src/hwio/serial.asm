@@ -33,8 +33,7 @@ serialhnd:
   cp      SYNC_NANO
   jr      z,synch_nanoslave
   cp      SYNC_MIDI
-;  jp      z,synch_midi
-  ret     z
+  jp      z,synch_midi
   ret
 
 sync_lsdjmidi:
@@ -183,7 +182,10 @@ midi_noteoff:
 
   call    getMIDIbyteinc 	;Note value (ignore)
   and     $7F
-  ;ld      (MIDINOTENB),a
+  ld      c,a
+  ld      a,(MIDINOTENB)
+  cp      c
+  ret     nz ; If the note value doesn't match current note, we don't need to send a note off.
 
   call    getMIDIbyteinc        ;Velocity (ignore)
   and     $7F

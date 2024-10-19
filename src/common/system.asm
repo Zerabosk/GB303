@@ -122,18 +122,6 @@ timer:
   jr     z,+
   jr     ++
 +:
-  cp     SYNC_MIDI
-  jr     nz,+
-  push   bc
-  push   hl
-  ld     a,(MIDIBPUT)
-  ld     b,a
-  ld     a,(MIDIBGET)
-  cp     b
-  call   nz,synch_midi
-  pop    hl
-  pop    bc
-+:
   ld     a,$FF          ; $FF Fastest poossible clock
   ldh    ($06),a        ; Load it into the modulo register
   ; Handle serial receive

@@ -332,6 +332,17 @@ start:
   call   setscreen
 
 ml:
+
+  ; Check if we have a complete MIDI message ready to process.
+  ld      a,(SYNCMODE)
+  cp      SYNC_MIDI
+  jr      nz,+
+  ld     a,(MIDIMESSAGERDYFLG)
+  or     a
+  jr      z,+
+  call   process_midi_message
++:
+
   ld     a,(VBL)
   or     a
   jr     z,ml

@@ -5,6 +5,16 @@ MIDIBUFFER DS 64 ; Putting this here gives it the ADDRESS $C000 - which is align
 
 MIDINOTENB DB
 MIDINOTECMD DB 
+
+; Just copying mGB
+MIDISTATUSBYTE DB ; MIDI Event type
+MIDIADDRESSBYTE DB ; MIDI Note number
+MIDIVALUEBYTE DB ; Other MIDI data 
+
+MIDICAPTADDRFLG DB ; MIDI Captured addresss flag (0=no, 1=yes)
+MIDIMESSAGERDYFLG DB ; MIDI Message ready flag (0=no, 1=yes)
+
+
 VBL DB
 VBL_HANDLER DW
 FRAME DB

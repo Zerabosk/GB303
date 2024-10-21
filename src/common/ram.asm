@@ -1,8 +1,4 @@
 .ENUM $C000 EXPORT
-MIDIBUFFER DS 64 ; Putting this here gives it the ADDRESS $C000 - which is aligned to 8 bytes - I cant figure out how to do it properly. :(
-;MIDIBPUT DB - Stuck in HRAM now
-;MIDIBGET DB - Stuck in HRAM now
-
 MIDINOTENB DB
 MIDINOTECMD DB 
 
@@ -12,7 +8,6 @@ MIDIADDRESSBYTE DB ; MIDI Note number
 MIDIVALUEBYTE DB ; Other MIDI data 
 
 MIDICAPTADDRFLG DB ; MIDI Captured addresss flag (0=no, 1=yes)
-MIDIMESSAGERDYFLG DB ; MIDI Message ready flag (0=no, 1=yes)
 
 
 VBL DB
@@ -179,16 +174,6 @@ SELSONGNAME DS 9
 CONFIRM_YN DB
 PREVSONGPTR DB
 .ENDE
-
-;.RAMSECTION "Aligned Variables" BANK 0 SLOT 0 ALIGN 8
-;.ALIGN 8
-;MIDIBUFFER DS 64
-;.ENDS
-
-.RAMSECTION "HRAM Variables" BANK 0 SLOT 2
-MIDIBPUT DB
-MIDIBGET DB
-.ENDS
 
 .DEFINE POTLINK_NOTHING		0
 .DEFINE POTLINK_CUTOFF		1

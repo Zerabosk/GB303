@@ -30,7 +30,7 @@ serialhnd:
   ret
 
 sync_lsdjmidi:
-  call    sy_common
+  ld      a,b
   or      a
   ret     z
   cp      $80 ; anything below $80 we ignore
@@ -55,19 +55,9 @@ sync_lsdjmidi:
   ld      a,2			;Note off
   ld      (MIDINOTECMD),a
   ret
-  
-sy_common:
-  ld      a,(MIDIBPUT)
-  ld      (MIDIBGET),a
-  dec     a
-  and     $3F
-  ld      h,>MIDIBUFFER ; Load the high byte of MIDIBUFFER (its aligned to $C000)
-  ld      l,a
-  ld      a,(hl)
-  ret
 
 synch_nanoslave:
-  call    sy_common
+  ld      a,b
   or      a
   ret     z
   ld      a,(PLAYING) ; Start playing as soon as we get a non-zero byte.
@@ -94,7 +84,7 @@ synch_nanoslave:
   ret
 
 synch_lsdjslave:
-  call    sy_common
+  ld      a,b
   or      a
   jr      nz,+
   xor     a
@@ -125,26 +115,13 @@ synch_midi:
   
   bit     7,a            ; Check bit 7 Status byte (1) or data byte (0)?
   jr      z,+
-  call    midi_status
-  ret
-+:
-  call    midi_data
-  ; Check if we have a complete MIDI message ready to process.
-  ld     a,(MIDIMESSAGERDYFLG)
-  or     a
-  jr     z,+
-  call   process_midi_message
-+:
-  ret
-
-midi_status:
+  ;;;;; Status byte ;;;;;
   ld      (MIDISTATUSBYTE),a ; Store the status byte
   xor     a
   ld      (MIDICAPTADDRFLG),a ; Clear the address flag
-  ld      (MIDIMESSAGERDYFLG),a ; Clear the message ready flag
   ret
-
-midi_data:
++:
+  ;;;;; Data byte ;;;;;
   ld      b,a
   ld      a,(MIDICAPTADDRFLG) ; Check if we have captured an address already
   or      a
@@ -154,9 +131,7 @@ midi_data:
   ld      (MIDIVALUEBYTE),a ; Store the data byte
   xor     a
   ld      (MIDICAPTADDRFLG),a ; Clear the address flag
-  ld      a,1
-  ld      (MIDIMESSAGERDYFLG),a ; Set the message ready flag
-  ret
+  call    process_midi_message ; Message is complete - process it.
 +:
   ; We haven't captured an address yet - so store it as an address byte
   ld      a,b
@@ -164,11 +139,11 @@ midi_data:
   ld      a,1
   ld      (MIDICAPTADDRFLG),a ; Set the address flag
   ld      a,(MIDISTATUSBYTE)
-  and     $F0
-  cp      $C0 ; If its a program change, the meesage is complete.
-  ret     nz
-  ld      a,1
-  ld      (MIDIMESSAGERDYFLG),a ; Set the message ready flag
+;  We just done deal with Program Change yet
+;  and     $F0
+;  cp      $C0 ; If its a program change, the meesage is complete.
+;  ret     nz
+  ;call    process_midi_message ; Message is complete - process it. - But not yet - we dont do anything with program change.
   ret
 
 process_midi_message:
@@ -185,7 +160,6 @@ process_midi_message:
   cp      $80     ;Note off - Next two bytes are note and velocity
   jr      z,midi_noteoff
   ret
-
 
 midi_noteoff:
   ld      a,(MIDIADDRESSBYTE)

@@ -256,10 +256,12 @@ start:
   xor    a
   ld     (OSCTYPE),a
   ld     (BEND),a
-  ld     (MIDIBPUT),a
-  ld     (MIDIBGET),a
   ld     (PATTERN_LOAD_ACTIVE),a ; Initialise loading flag
   ld     (PATTERN_LOAD_PROGRESS),a ; Initialise progress
+  ld     (MIDISTATUSBYTE),a ; Initialise status byte
+  ld     (MIDIADDRESSBYTE),a ; Initialise address byte
+  ld     (MIDIVALUEBYTE),a ; Initialise value byte
+  ld     (MIDICAPTADDRFLG),a ; Initialise address flag
   ld     a,1
   ld     (DRUMSMUTE),a
   ld     a,8

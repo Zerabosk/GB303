@@ -332,18 +332,6 @@ start:
   call   setscreen
 
 ml:
-
- ;Check if we have a byte to read from the MIDI buffer.
-  ld      a,(SYNCMODE)
-  cp      SYNC_MIDI
-  jr      nz,+
-  ld      a,(MIDIBPUT)
-  ld      b,a
-  ld      a,(MIDIBGET)
-  cp      b
-  call    nz,synch_midi
-+:
-
   ld     a,(VBL)
   or     a
   jr     z,ml

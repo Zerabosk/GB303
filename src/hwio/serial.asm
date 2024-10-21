@@ -3,17 +3,10 @@ serial:
   push    bc
   push    de
   push    hl
-  ld      h,>MIDIBUFFER ; Load the high byte of MIDIBUFFER (its aligned to $C000)
-  ldh     a,(<MIDIBPUT) ; Load the low byte of MIDIBPUT (Its in HRAM, thus it always starts with $FF)
-  ld      l,a
-  ldh     a,($01)
-  ld      (hl),a
-  ld      a,(MIDIBPUT)
-  inc     a
-  and     $3F
-  ld      (MIDIBPUT),a
-  
-  call    serialhnd
+
+  ldh     a,($01) ; Read the serial transfer register
+  ld      b,a
+  call    serialhnd ; Do stuff with it.
 
   pop     hl
   pop     de
@@ -32,8 +25,8 @@ serialhnd:
   jr      z,sync_lsdjmidi
   cp      SYNC_NANO
   jr      z,synch_nanoslave
-;  cp      SYNC_MIDI ; Just store the data in the buffer.
-;  jp      z,synch_midi
+  cp      SYNC_MIDI ; Just store the data in the buffer.
+  jp      z,synch_midi
   ret
 
 sync_lsdjmidi:
@@ -127,25 +120,21 @@ synch_midi:
   ld      a,1
   ld      (PLAYING),a
   
-  ; Sort the bytes into the correct buckets for processing elsewhere...
-  ldh     a,(<MIDIBGET) ; Load the low byte of MIDIBGET (Its in HRAM, thus it always starts with $FF)
-  and     $3F ; Mask to 64 bytes
-  ld      h,>MIDIBUFFER ; Load the high byte of MIDIBUFFER (its aligned to $C000)
-  ld      l,a
-  ld      a,(hl) ; hl is now the full address of the MIDI byte we want to process - load the new byte into a.
+  ; The byte is in b. Sort it and process it.
+  ld      a,b
   
   bit     7,a            ; Check bit 7 Status byte (1) or data byte (0)?
-  jr      nz,midi_status
-
-  call    midi_data
-  call    inc_midibget
+  jr      z,+
+  call    midi_status
   ret
-
-inc_midibget:
-  ldh     a,(<MIDIBGET) ; Load the low byte of MIDIBGET (Its in HRAM, thus it always starts with $FF)
-  inc     a ; Increment to get the next byte
-  and     $3F ; Mask to 64 bytes
-  ld      (MIDIBGET),a ; Store the new low byte of MIDIBGET
++:
+  call    midi_data
+  ; Check if we have a complete MIDI message ready to process.
+  ld     a,(MIDIMESSAGERDYFLG)
+  or     a
+  jr     z,+
+  call   process_midi_message
++:
   ret
 
 midi_status:
@@ -153,10 +142,6 @@ midi_status:
   xor     a
   ld      (MIDICAPTADDRFLG),a ; Clear the address flag
   ld      (MIDIMESSAGERDYFLG),a ; Clear the message ready flag
-  ldh     a,(<MIDIBGET) ; Load the low byte of MIDIBGET (Its in HRAM, thus it always starts with $FF)
-  inc     a ; Increment to get the next byte
-  and     $3F ; Mask to 64 bytes
-  ld      (MIDIBGET),a ; Store the new low byte of MIDIBGET
   ret
 
 midi_data:

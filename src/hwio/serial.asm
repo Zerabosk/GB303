@@ -3,10 +3,7 @@ serial:
   push    bc
   push    de
   push    hl
-
-  ldh     a,($01) ; Read the serial transfer register
-  call    serialhnd ; Do stuff with it.
-
+  call    serialhnd
   pop     hl
   pop     de
   pop     bc
@@ -29,6 +26,7 @@ serialhnd:
   ret
 
 sync_lsdjmidi:
+  ldh     a,($01) ; Read the serial transfer register
   or      a
   ret     z
   cp      $80 ; anything below $80 we ignore
@@ -55,6 +53,7 @@ sync_lsdjmidi:
   ret
 
 synch_nanoslave:
+  ldh     a,($01) ; Read the serial transfer register
   or      a
   ret     z
   ld      a,(PLAYING) ; Start playing as soon as we get a non-zero byte.
@@ -81,6 +80,7 @@ synch_nanoslave:
   ret
 
 synch_lsdjslave:
+  ldh     a,($01) ; Read the serial transfer register
   or      a
   jr      nz,+
   xor     a
@@ -103,6 +103,7 @@ synch_lsdjslave:
   ret
 
 synch_midi:
+  ldh     a,($01) ; Read the serial transfer register
   bit     7,a            ; Check bit 7 Status byte (1) or data byte (0)?
   jr      z,+
   ;;;;; Status byte ;;;;;

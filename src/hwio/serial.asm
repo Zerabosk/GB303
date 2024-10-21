@@ -5,7 +5,6 @@ serial:
   push    hl
 
   ldh     a,($01) ; Read the serial transfer register
-  ld      b,a
   call    serialhnd ; Do stuff with it.
 
   pop     hl
@@ -25,12 +24,11 @@ serialhnd:
   jr      z,sync_lsdjmidi
   cp      SYNC_NANO
   jr      z,synch_nanoslave
-  cp      SYNC_MIDI ; Just store the data in the buffer.
+  cp      SYNC_MIDI
   jp      z,synch_midi
   ret
 
 sync_lsdjmidi:
-  ld      a,b
   or      a
   ret     z
   cp      $80 ; anything below $80 we ignore
@@ -57,7 +55,6 @@ sync_lsdjmidi:
   ret
 
 synch_nanoslave:
-  ld      a,b
   or      a
   ret     z
   ld      a,(PLAYING) ; Start playing as soon as we get a non-zero byte.
@@ -84,7 +81,6 @@ synch_nanoslave:
   ret
 
 synch_lsdjslave:
-  ld      a,b
   or      a
   jr      nz,+
   xor     a
@@ -107,12 +103,6 @@ synch_lsdjslave:
   ret
 
 synch_midi:
-  ld      a,1
-  ld      (PLAYING),a
-  
-  ; The byte is in b. Sort it and process it.
-  ld      a,b
-  
   bit     7,a            ; Check bit 7 Status byte (1) or data byte (0)?
   jr      z,+
   ;;;;; Status byte ;;;;;
@@ -147,6 +137,8 @@ synch_midi:
   ret
 
 process_midi_message:
+  ld      a,1
+  ld      (PLAYING),a
   ld      a,(MIDISTATUSBYTE)
   and     $F0			;Mask lower nibble to ignore channel (We only support 1 channel)
 ;  cp      $B0			;CC - Next two bytes are CC number and value

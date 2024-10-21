@@ -129,27 +129,34 @@ synch_midi:
   
   ; Sort the bytes into the correct buckets for processing elsewhere...
   ldh     a,(<MIDIBGET) ; Load the low byte of MIDIBGET (Its in HRAM, thus it always starts with $FF)
-  inc     a ; Increment to get the next byte
   and     $3F ; Mask to 64 bytes
-  ld      (MIDIBGET),a ; Store the new low byte of MIDIBGET
   ld      h,>MIDIBUFFER ; Load the high byte of MIDIBUFFER (its aligned to $C000)
   ld      l,a
   ld      a,(hl) ; hl is now the full address of the MIDI byte we want to process - load the new byte into a.
   
   bit     7,a            ; Check bit 7 Status byte (1) or data byte (0)?
-  jr      z,+
-  call    midi_status
-  ret
-+:
+  jr      nz,midi_status
+
   call    midi_data
+  call    inc_midibget
   ret
 
+inc_midibget:
+  ldh     a,(<MIDIBGET) ; Load the low byte of MIDIBGET (Its in HRAM, thus it always starts with $FF)
+  inc     a ; Increment to get the next byte
+  and     $3F ; Mask to 64 bytes
+  ld      (MIDIBGET),a ; Store the new low byte of MIDIBGET
+  ret
 
 midi_status:
   ld      (MIDISTATUSBYTE),a ; Store the status byte
   xor     a
   ld      (MIDICAPTADDRFLG),a ; Clear the address flag
   ld      (MIDIMESSAGERDYFLG),a ; Clear the message ready flag
+  ldh     a,(<MIDIBGET) ; Load the low byte of MIDIBGET (Its in HRAM, thus it always starts with $FF)
+  inc     a ; Increment to get the next byte
+  and     $3F ; Mask to 64 bytes
+  ld      (MIDIBGET),a ; Store the new low byte of MIDIBGET
   ret
 
 midi_data:
@@ -158,6 +165,7 @@ midi_data:
   or      a
   jr      z,+
   ; We have captured an address already - so store it as a value byte
+  ld      a,b
   ld      (MIDIVALUEBYTE),a ; Store the data byte
   xor     a
   ld      (MIDICAPTADDRFLG),a ; Clear the address flag
@@ -166,6 +174,7 @@ midi_data:
   ret
 +:
   ; We haven't captured an address yet - so store it as an address byte
+  ld      a,b
   ld      (MIDIADDRESSBYTE),a ; Store the address byte
   ld      a,1
   ld      (MIDICAPTADDRFLG),a ; Set the address flag

@@ -333,14 +333,15 @@ start:
 
 ml:
 
-  ; Check if we have a complete MIDI message ready to process.
+ ;Check if we have a byte to read from the MIDI buffer.
   ld      a,(SYNCMODE)
   cp      SYNC_MIDI
   jr      nz,+
-  ld     a,(MIDIMESSAGERDYFLG)
-  or     a
-  jr      z,+
-  call   process_midi_message
+  ld      a,(MIDIBPUT)
+  ld      b,a
+  ld      a,(MIDIBGET)
+  cp      b
+  call    nz,synch_midi
 +:
 
   ld     a,(VBL)

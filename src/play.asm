@@ -22,15 +22,14 @@ playv:
   ldh     ($02),a
 +:
 
-; Check if we have a byte to read from the MIDI buffer.
+; Check if we have a complete MIDI message ready to process.
   ld      a,(SYNCMODE)
   cp      SYNC_MIDI
   jr      nz,+
-  ld      a,(MIDIBPUT)
-  ld      b,a
-  ld      a,(MIDIBGET)
-  cp      b
-  call    nz,synch_midi
+  ld     a,(MIDIMESSAGERDYFLG)
+  or     a
+  jr      z,+
+  call   process_midi_message
 +:
 
   ld     a,(PLAYING)

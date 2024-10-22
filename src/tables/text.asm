@@ -33,7 +33,7 @@ text_synclsdjs:
 text_synclsdjmidi:
   .db "LSDJ MIDI-IN",$FF
 text_syncnano:
-  .db "NANO MASTER ",$FF
+  .db "NANO SLAVE  ",$FF
 text_syncfmidi:
   .db "FULL MIDI   ",$FF
 

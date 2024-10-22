@@ -110,10 +110,31 @@ div10:
 
 timer:
   push   af
-  ld     a,(SYNCMODE)		;Only activate internal sync when SYNCMODE = NONE
-  cp     SYNC_NONE
+  ld     a,(SYNCMODE)	;Only activate internal sync when GB303 is Master (No Sync, LSDJ Master, Nanoloop Master)
+  ; LSDJ Slave
+  cp     SYNC_LSDJS
   jr     z,+
+  ; Nanoloop Slave
   cp     SYNC_NANO
+  jr     z,+
+  ; Full MIDI
+  cp     SYNC_MIDI
+  jr     z,+
+  jr     ++
++:
+  ld     a,$FF          ; $FF Fastest poossible clock
+  ldh    ($06),a        ; Load it into the modulo register
+  ; Handle serial receive
+  ldh    a,($02)        ; Load SC register
+  bit    7,a            ; Check bit 7 (Transfer enable)
+  jr     nz,++           ; Jump to ++ Transfer is enabled
+  ld     a,$80          ; Otherwise, set to slave mode
+  ldh    ($02),a  
+  pop    af
+  reti
+++:
+  ; GB303 Master
+  cp     SYNC_NONE
   jr     z,+
   jr     ++
 +:
@@ -133,6 +154,8 @@ timer:
 ++:
   pop    af
   reti
+
+
 
 ;Input: D = Dividend, E = Divisor, A = 0
 ;Output: D = Quotient, A = Remainder

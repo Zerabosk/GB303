@@ -256,10 +256,12 @@ start:
   xor    a
   ld     (OSCTYPE),a
   ld     (BEND),a
-  ld     (MIDIBPUT),a
-  ld     (MIDIBGET),a
   ld     (PATTERN_LOAD_ACTIVE),a ; Initialise loading flag
   ld     (PATTERN_LOAD_PROGRESS),a ; Initialise progress
+  ld     (MIDISTATUSBYTE),a ; Initialise status byte
+  ld     (MIDIADDRESSBYTE),a ; Initialise address byte
+  ld     (MIDIVALUEBYTE),a ; Initialise value byte
+  ld     (MIDICAPTADDRFLG),a ; Initialise address flag
   ld     a,1
   ld     (DRUMSMUTE),a
   ld     a,8
@@ -332,26 +334,6 @@ start:
   call   setscreen
 
 ml:
-  ;Handle serial receive
-  ld      a,(SYNCMODE)
-  cp      SYNC_LSDJMIDI
-  jr      z,+
-  cp      SYNC_NANO
-  jr      z,++
-  ld      a,$80         ;Slave
-  ldh     ($02),a
-  jr      ++
-+:
-  ld      a,$81		;Master
-  ldh     ($02),a
-++:
-
-  ld     a,(MIDIBPUT)
-  ld     b,a
-  ld     a,(MIDIBGET)
-  cp     b
-  call   nz,serialhnd
-
   ld     a,(VBL)
   or     a
   jr     z,ml
@@ -377,8 +359,6 @@ playstop:
   ld     a,(SYNCMODE)
   or     a
   cp     SYNC_NONE
-  jr     z,+
-  cp     SYNC_NANO
   jr     z,+
   jr     stopp
 +:

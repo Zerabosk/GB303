@@ -4,6 +4,12 @@ serial:
   push    de
   push    hl
   call    serialhnd
+  ld      a,(SYNCMODE)
+  cp      SYNC_MIDI
+  jr      nz,+
+  ld      a,$80     ; Set to slave mode after midi sync
+  ldh     ($02),a 
++:
   pop     hl
   pop     de
   pop     bc

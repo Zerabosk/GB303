@@ -129,7 +129,9 @@ timer:
   bit    7,a            ; Check bit 7 (Transfer enable)
   jr     nz,++           ; Jump to ++ Transfer is enabled
   ld     a,$80          ; Otherwise, set to slave mode
-  ldh    ($02),a        
+  ldh    ($02),a  
+  pop    af
+  reti
 ++:
   ; GB303 Master
   cp     SYNC_NONE

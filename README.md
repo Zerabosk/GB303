@@ -12,14 +12,13 @@ GB303 wavetable-based TB-303 style synthesizer for the Nintendo Gameboy.
 - [ ] Konamicode etch-a-sketch mode. (maybe)
 ###### Fix known bugs:
 - [x] Beat skip when patten changes in song mode.
-- [ ] Beat skip when patten changes in song mode on Pattern page. (Screen redraw too slow)
+- [ ] Beat skip at end of pattern on  Pattern page. (Screen redraw too slow)
 - [x] Nanoloop misses random beats from GB-303 when in Nanoloop Master mode (Now Nanoloop slave mode)
 - [ ] Nanoloop 2 sync doesn't work.
 - [x] LSDJ Slave sync is late.
 - [x] LSDJ MIDI sync doesn't work.
-- [ ] Full MIDI mode misses notes randomly. Especially bad when playing fast.
+- [x] Full MIDI mode misses notes randomly. Especially bad when playing fast.
 - [x] Pattern names get overwitten (randomly? Maybe to do with saves happening on song start?)
-- [ ] Pattern page redraw function is slow and causes delays when changing patterns.
 
 ![GB303 prototype](img/prot.jpg)
 

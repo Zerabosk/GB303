@@ -10,10 +10,10 @@ draw_notes:
   ld     c,16
 --:
   ld     a,T_GRIDNOTE
-  di
+  ;di
   call   wait_write
   ldi    (hl),a
-  ei
+  ;ei
   dec    c
   jr     nz,--
   ld     a,l
@@ -61,10 +61,10 @@ draw_notes:
   inc    h
 +:
   ld     a,c
-  di
+  ;di
   call   wait_write
   ld     (hl),a
-  ei
+  ;ei
 ++:
   inc    b
   ld     a,b
@@ -105,10 +105,10 @@ olo:
 write_pattinfo:
   ld     hl,$9800+(32*0)+7
   ld     a,'P'-TXT_NORMAL
-  di
+  ;di
   call   wait_write
   ld     (hl),a
-  ei
+  ;ei
 
   ld     a,(CURPATTERN)
   ld     hl,$9800+(32*0)+8
@@ -117,10 +117,10 @@ write_pattinfo:
   
   ld     hl,$9800+(32*0)+10
   ld     a,':'-TXT_NORMAL
-  di
+  ;di
   call   wait_write
   ld     (hl),a
-  ei
+  ;ei
 
   ld     de,PATTNAME
   ld     hl,$9800+(32*0)+11
@@ -131,10 +131,10 @@ write_pattinfo:
 write_songinfo:
   ld     hl,$9800+(32*0)+7
   ld     a,'S'-TXT_NORMAL
-  di
+  ;di
   call   wait_write
   ld     (hl),a
-  ei
+  ;ei
 
   ld     a,(CURSONG)
   ld     hl,$9800+(32*0)+8
@@ -143,10 +143,10 @@ write_songinfo:
 
   ld     hl,$9800+(32*0)+10
   ld     a,':'-TXT_NORMAL
-  di
+  ;di
   call   wait_write
   ld     (hl),a
-  ei
+  ;ei
 
   ld     de,SONGNAME
   ld     hl,$9800+(32*0)+11

@@ -142,6 +142,7 @@
 
 .ORG $0040
 vblank:
+  ei ; Enable interrupts to prevent missing serial bytes. This might be a bit dangerous but seems to work.
   push   af
   ld     a,1
   ld     (VBL),a

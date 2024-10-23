@@ -91,17 +91,17 @@ liv_eplcommon:
   jr     nz,-
 +:
   ld     a,' '-TXT_NORMAL
-  di
+  ;di
   call   wait_write
   ld     (hl),a
-  ei
+  ;ei
   ld     de,5
   add    hl,de
   ld     a,' '-TXT_NORMAL
-  di
+  ;di
   call   wait_write
   ld     (hl),a
-  ei
+  ;ei
   ret
 
 liv_drawpotlinks:
@@ -128,15 +128,15 @@ liv_dplcommon:
   jr     nz,-
 +:
   ld     a,'['-TXT_NORMAL
-  di
+  ;di
   call   wait_write
   ld     (hl),a
-  ei
+  ;ei
   ld     de,5
   add    hl,de
   ld     a,']'-TXT_NORMAL
-  di
+  ;di
   call   wait_write
   ld     (hl),a
-  ei
+  ;ei
   ret

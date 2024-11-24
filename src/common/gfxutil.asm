@@ -11,10 +11,10 @@ clearsprites:
   ld     hl,$FE00               ;Empties OAM
   ld     b,40*4
 clspr:
-  ;di
+  di
   call   wait_hblank
   ld     (hl),$00
-  ;ei
+  ei
   inc    l                      ;Avoids hardware bug
   dec    b
   jr     nz,clspr
@@ -223,7 +223,7 @@ mapa:
   ret
 
 wait_vbl:
-  ;;di
+  ;di
   ldh    a,($40)
   rlca
   jr     nc,+
@@ -232,7 +232,7 @@ wait_vbll:
   cp     144
   jr     c,wait_vbll
 +:
-  ;;ei
+  ;ei
   ret
 
 clearbkg:
@@ -240,10 +240,10 @@ clearbkg:
   ld     hl,$9800
 -:
   xor    a
-  ;di
+  di
   call   wait_write
   ldi    (hl),a
-  ;ei
+  ei
   dec    de
   ld     a,e
   or     d
@@ -253,10 +253,10 @@ clearbkg:
   ld     hl,$9C00
 -:
   xor    a
-  ;di
+  di
   call   wait_write
   ldi    (hl),a
-  ;ei
+  ei
   dec    de
   ld     a,e
   or     d
@@ -269,35 +269,35 @@ writeDE:
   and    $F
   call   checkhex
   add    16
-  ;di
+  di
   call   wait_write
   ldi    (hl),a
-  ;ei
+  ei
   ld     a,d
   and    $F
   call   checkhex
   add    16
-  ;di
+  di
   call   wait_write
   ldi    (hl),a
-  ;ei
+  ei
   ld     a,e
   swap   a
   and    $F
   call   checkhex
   add    16
-  ;di
+  di
   call   wait_write
   ldi    (hl),a
-  ;ei
+  ei
   ld     a,e
   and    $F
   call   checkhex
   add    16
-  ;di
+  di
   call   wait_write
   ldi    (hl),a
-  ;ei
+  ei
   ret
  
 writeAsmall:
@@ -308,18 +308,18 @@ writeAsmall:
   swap   a
   add    $30
   sub    b
-  ;di
+  di
   call   wait_hblank
   ldi    (hl),a
-  ;ei
+  ei
   ld     a,c
   and    $0F
   add    $30
   sub    b
-  ;di
+  di
   call   wait_hblank
   ld     (hl),a
-  ;ei
+  ei
   pop    bc
   ret
 
@@ -331,19 +331,19 @@ writeAhex:
   call   checkhex
   add    $30
   sub    b
-  ;di
+  di
   call   wait_hblank
   ldi    (hl),a
-  ;ei
+  ei
   ld     a,c
   and    $0F
   call   checkhex
   add    $30
   sub    b
-  ;di
+  di
   call   wait_hblank
   ld     (hl),a
-  ;ei
+  ei
   pop    bc
   ret
 
@@ -389,10 +389,10 @@ RAMtoOAM:
   ld     b,4*24		;24 sprites to copy
 -:
   ldi    a,(hl)
-  ;di
+  di
   call   wait_hblank
   ld     (de),a
-  ;ei
+  ei
   inc    e
   dec    b
   jr     nz,-

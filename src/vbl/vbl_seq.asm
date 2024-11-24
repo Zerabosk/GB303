@@ -205,15 +205,15 @@ refresh_seq:
 +:
   ld     l,a
 -:
-  ;di
+  di
   call   wait_write
   ld     a,(hl)
-  ;ei
+  ei
   and    %10111111		;Clear inverted
-  ;di
+  di
   call   wait_write
   ldi    (hl),a
-  ;ei
+  ei
   dec    c
   jr     nz,-
 
@@ -241,15 +241,15 @@ showcur_seq:			;Called just here by seq init
 +:
   ld     l,a
 -:
-  ;di
+  di
   call   wait_write
   ld     a,(hl)
-  ;ei
+  ei
   or     %01000000		;Set inverted
-  ;di
+  di
   call   wait_write
   ldi    (hl),a
-  ;ei
+  ei
   dec    c
   jr     nz,-
   ret
@@ -330,10 +330,10 @@ show_play_head:
   ld     h, 0
   call   .calculate_position
   pop    af
-  ;di
+  di
   call   wait_write
   ld     (hl), a
-  ;ei
+  ei
   ret
 
 .calculate_position:

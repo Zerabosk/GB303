@@ -325,13 +325,21 @@ writeAsmall:
 
 writeAhex:
   push   bc
+  push   de
   ld     c,a
   and    $F0
   swap   a
   call   checkhex
   add    $30
   sub    b
+  ld     d,a
+  ; If we are in MIDI sync, we can't be disabling interrupts - graphical glitches abound!
+  ld      a,(SYNCMODE)
+  cp      SYNC_MIDI
+  jr      z,+
   di
++:
+  ld     a,d
   call   wait_hblank
   ldi    (hl),a
   ei
@@ -340,10 +348,18 @@ writeAhex:
   call   checkhex
   add    $30
   sub    b
+  ld     d,a
+  ; If we are in MIDI sync, we can't be disabling interrupts - graphical glitches abound!
+  ld      a,(SYNCMODE)
+  cp      SYNC_MIDI
+  jr      z,+
   di
++:
+  ld     a,d
   call   wait_hblank
   ld     (hl),a
   ei
+  pop    de
   pop    bc
   ret
 
@@ -389,7 +405,14 @@ RAMtoOAM:
   ld     b,4*24		;24 sprites to copy
 -:
   ldi    a,(hl)
+  ld     c,a
+  ; If we are in MIDI sync, we can't be disabling interrupts - graphical glitches abound!
+  ld      a,(SYNCMODE)
+  cp      SYNC_MIDI
+  jr      z,+
   di
++:
+  ld     a,c
   call   wait_hblank
   ld     (de),a
   ei

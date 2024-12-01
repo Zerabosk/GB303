@@ -147,9 +147,9 @@ process_midi_message:
   ld      a,1
   ld      (PLAYING),a
   ld      a,(MIDISTATUSBYTE)
-  and     $F0			;Mask lower nibble to ignore channel (We only support 1 channel)
-;  cp      $B0			;CC - Next two bytes are CC number and value
-;  jr      z,midi_cc
+  and     $F0			;Mask lower nibble to ignore channel (We only support whatever channel we are sent)
+  cp      $B0			;CC - Next two bytes are CC number and value
+  jr      z,midi_cc
 ;  cp      $C0     ;Program change - Next byte is program number
 ;  jr      z,midi_program
 ;  cp      $E0     ;Pitch bend - Next two bytes are pitch bend amount
@@ -188,4 +188,35 @@ midi_noteon:
 
   ld      a,1			;Note on
   ld      (MIDINOTECMD),a
+  ret
+
+midi_cc:
+  ld      a,(MIDIADDRESSBYTE) ; CC number
+;  cp      $05 ; CC 5 - Slide Speed
+;  jr      z,+
+;  cp      $0E ; CC 14 - LFO Speed
+;  jr      z,++
+;  cp      $0F ; CC 15 - LFO Amp
+;  jr      z,+++
+  cp      $47 ; CC 71 - Resonance
+  jr      z,++++
+  cp      $4A ; CC 74 - Cuttoff
+  jr      z,+++++
+  ret     nz ; If the CC number isn't supported, we don't need to do anything.
+++++:
+  ld      a,(MIDIVALUEBYTE);(0-127)
+  sla     a     ;*2
+  swap   a			;/16
+  and    $F
+  ld      (RESON),a
+  ret
++++++:
+  ld      a,(MIDIVALUEBYTE) ;(0-127)
+  sla     a     ;*2
+  cpl     a
+  srl     a			;64
+  ld      b,a
+  srl     a			;32
+  add     b			;64+32=96
+  ld      (CUTOFFSET),a
   ret

@@ -81,14 +81,14 @@
 ;------------------------------------------------------------------------------
 
 ;AUTOLOAD DOES NOT WORK :( NEEDS TO WORK
-;After song load, load first pattern of song !
+;After song load, load first pattern of song ! - This works now. -Z
 
 ;OK-: Update pattern name in screens during song play
 ;OK-: Update live screen pot assign during play of pattern which overrides
 ;OK-: Song play (get patt #, stop on FF)
 ;OK-: Autoload last song and pattern
 ;OK-: After save/load, update MEM screen (current, selectors)
-;TODO: Reverse pot mode (for GBA SP, press start on startup)
+;TODO: Reverse pot mode (for GBA SP, press start on startup) - This works now. -Z
 
 ;TODO: Dump saves to link port !
 ;Sysex dump: data...

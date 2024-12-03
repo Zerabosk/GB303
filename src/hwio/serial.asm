@@ -190,33 +190,95 @@ midi_noteon:
   ld      (MIDINOTECMD),a
   ret
 
+;.org $0014
 midi_cc:
-  ld      a,(MIDIADDRESSBYTE) ; CC number
-;  cp      $05 ; CC 5 - Slide Speed
-;  jr      z,+
-;  cp      $0E ; CC 14 - LFO Speed
-;  jr      z,++
-;  cp      $0F ; CC 15 - LFO Amp
-;  jr      z,+++
-  cp      $47 ; CC 71 - Resonance
-  jr      z,++++
-  cp      $4A ; CC 74 - Cuttoff
-  jr      z,+++++
-  ret     nz ; If the CC number isn't supported, we don't need to do anything.
-++++:
-  ld      a,(MIDIVALUEBYTE);(0-127)
-  sla     a     ;*2
-  swap   a			;/16
-  and    $F
-  ld      (RESON),a
-  ret
-+++++:
   ld      a,(MIDIVALUEBYTE) ;(0-127)
+  and     125 ; Limit to 0-125 - causes crashes otherwise
   sla     a     ;*2
-  cpl     a
-  srl     a			;64
   ld      b,a
-  srl     a			;32
-  add     b			;64+32=96
-  ld      (CUTOFFSET),a
-  ret
+  ld      a,(MIDIADDRESSBYTE) ; CC number
+  cp      $05 ; CC 5 - Slide Speed
+  call    z,pots_slide
+  cp      $0E ; CC 14 - LFO Speed
+  call    z,pots_lfospeed
+  cp      $0F ; CC 15 - LFO Amp
+  call    z,pots_lfoamp
+  cp      $14 ; CC 20 - Pitch Mod
+  call    z,pots_pitch
+  cp      $47 ; CC 71 - Resonance
+  call    z,pots_reson
+  cp      $4A ; CC 74 - Cuttoff
+  call    z,pots_cutoff
+  ret     nz ; If the CC number isn't supported, we don't need to do anything.
+;slide_speed:
+;  ld      a,(MIDIVALUEBYTE);(0-127)
+;  sla     a     ;*2
+;  srl     a
+;  ld      (SLIDESPEED),a
+;  ret
+;lfo_speed:
+;  ld      a,(MIDIVALUEBYTE);(0-127)
+;  sla     a     ;*2
+;  srl     a
+;  srl     a
+;  srl     a
+;  ld      (LFOSPEED),a
+;  ret 
+;lfo_amp:
+;  ld      a,(MIDIVALUEBYTE);(0-127)
+;  sla     a     ;*2
+;  swap    a			;/16
+;  and     $F
+;  ld      (LFOAMP),a
+;  ret
+;bend:
+;  ld      a,(MIDIVALUEBYTE);(0-127)
+;  sla     a     ;*2
+;  srl     a
+;  ld      (BEND),a
+;  ret
+;resonance:
+;  ld      a,(MIDIVALUEBYTE);(0-127)
+;  sla     a     ;*2
+;  swap    a			;/16
+;  and     $F
+;  ld      (RESON),a
+;  ret
+;cutoff:
+;  ld      a,(MIDIVALUEBYTE) ;(0-127)
+;  sla     a     ;*2
+;  cpl     a
+;  srl     a			;64
+;  ld      b,a
+;  srl     a			;32
+;  add     b			;64+32=96
+;  ld      (CUTOFFSET),a
+;  ret
+
+;TBC - This break existing pitch implementation. Maybe later.
+;midi_pitchbend:
+;  ; Pitch bend is 14 bits - 2 x 7 bits - value from 0-16383
+;  ; Pitch bend $2000 is center (8192) [no pitch bend]
+;  ; 0HHH HHHH - High byte of pitch bend
+;  ; 0LLL LLLL - Low byte of pitch bend
+;  ld    a,(MIDIVALUEBYTE)    ; 0HHH HHHH - High byte of pitch bend
+;  ld    b,a
+;  ld    a,(MIDIADDRESSBYTE)  ; 0LLL LLLL - Low byte of pitch bend
+;  
+;  ; First subtract 8192 to center around 0
+;  ld    hl,$2000              ; 8192 in hex
+;  sub   hl,a
+;  ; Then divide by 64 to get a value from -128 to +127
+;  srl   a ; /2 
+;  srl   a ; /4
+;  srl   a ; /8
+;  srl   a ; /16
+;  srl   a ; /32
+;  srl   a ; /64
+;  ; Then add 128 to get a value from 0 to 255
+;  add   $80
+;  ; Then divide by 2 to get final BEND value (0-127)
+;  srl   a
+;  ; Store result in BEND
+;  ld    (BEND),a
+;  ret

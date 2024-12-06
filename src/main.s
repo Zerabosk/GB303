@@ -272,7 +272,6 @@ start:
   ld     (SLIDESPEED),a
 
   call   eebootcheck         ; Disable just for testing
-  call   adcbootcheck        ; Disable just for testing
   ;ld     a,1                  ; Load 1 into accumulator (hardware check passed)
   ;ld     (HWOK_EE),a          ; Set HWOK_EE to passed.
   ;ld     (HWOK_ADC),a         ; Set HWOK_ADC to passed.
@@ -291,20 +290,6 @@ start:
   ld     bc,$0303
   call   mapinc
 +:
-  ld     a,(HWOK_ADC)
-  or     a
-  jr     nz,+
-  ld     de,text_nopots
-  ld     hl,$9800+(32*10)+4
-  ld     b,TXT_NORMAL
-  call   maptext
-  ld     a,T_ERROR
-  ld     hl,$9800+(32*9)+4
-  ld     bc,$0303
-  call   mapinc
-+:
-  ld     a,(HWOK_ADC)
-  ld     b,a
   ld     a,(HWOK_EE)
   and    b
   jr     nz,+

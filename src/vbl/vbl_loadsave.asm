@@ -8,10 +8,6 @@ vbl_loadsave:
 
   call   input_loadsave
 
-  ld     a,(HWOK_ADC)
-  or     a
-  call   nz,readpots
-
   ld     hl,OAMCOPY
   ld     bc,$40
   call   clear
@@ -28,10 +24,6 @@ vbl_loadsaveerr:
   inc    (hl)
 
   call   readinput
-
-  ld     a,(HWOK_ADC)
-  or     a
-  call   nz,readpots
   
   ld     hl,OAMCOPY
   ld     bc,$40

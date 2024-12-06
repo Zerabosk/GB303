@@ -11,10 +11,6 @@ vbl_seq:
 
   call   input_seq
 
-  ld     a,(HWOK_ADC)
-  or     a
-  call   nz,readpots
-
   ld     hl,OAMCOPY
   ld     bc,$40
   call   clear

@@ -7,24 +7,20 @@ vbl_live:
   call   readinput
 
   call   input_live
-
-  ld     a,(HWOK_ADC)
-  or     a
-  call   nz,readpots
   
   ld     hl,$9800+(32*3)+4
   ld     b,TXT_NORMAL
-  ld     a,(POT1V)
+  ld     a,($FF) ; Need to put the actual value here - but Pots no longer exist :0
   call   writeAhex
   
   ld     hl,$9800+(32*3)+10
   ld     b,TXT_NORMAL
-  ld     a,(POT2V)
+  ld     a,($FF) ; Need to put the actual value here - but Pots no longer exist :0
   call   writeAhex
   
   ld     hl,$9800+(32*3)+16
   ld     b,TXT_NORMAL
-  ld     a,(POT3V)
+  ld     a,($FF) ; Need to put the actual value here - but Pots no longer exist :0
   call   writeAhex
 
   ;Render sprites

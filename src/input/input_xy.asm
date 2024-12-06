@@ -4,10 +4,6 @@ input_xy:
   ld     a,(JOYP_CURRENT)	;Select ?
   bit    2,a
   ret    nz
-  
-  ld     a,(HWOK_ADC)		;No controls if pots are OK
-  or     a
-  ret    nz
 
   ld     a,(JOYP_ACTIVE)
   bit    4,a

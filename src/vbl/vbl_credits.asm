@@ -121,10 +121,6 @@ vbl_credits:
   call   setscreen
 +:
 
-  ld     a,(HWOK_ADC)
-  or     a
-  call   nz,readpots
-
   ld     hl,OAMCOPY
   ld     bc,$40
   call   clear

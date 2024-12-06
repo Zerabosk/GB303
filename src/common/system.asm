@@ -117,9 +117,6 @@ timer:
   ; Nanoloop Slave
   cp     SYNC_NANO
   jr     z,+
-  ; Full MIDI
-  cp     SYNC_MIDI
-  jr     z,+
   jr     ++
 +:
   ld     a,$FF          ; $FF Fastest poossible clock

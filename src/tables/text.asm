@@ -34,15 +34,12 @@ text_synclsdjmidi:
   .db "LSDJ MIDI-IN",$FF
 text_syncnano:
   .db "NANO SLAVE  ",$FF
-text_syncfmidi:
-  .db "FULL MIDI   ",$FF
 
 textptr_sync:
   .dw text_syncnone
   .dw text_synclsdjs
   .dw text_synclsdjmidi
   .dw text_syncnano
-  .dw text_syncfmidi
 
 text_lfon:
   .db "NOTHING  ",$FF

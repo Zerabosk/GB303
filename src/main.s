@@ -93,7 +93,7 @@
 ;TODO: Dump saves to link port !
 ;Sysex dump: data...
 
-;TODO FUTURE ?:
+;TODO FUTURE ?: | Not possible - ADC Reads can't be interrupted - serial interrupts are too frequent with MIDI. -Z
 ;MIDI CC 74: Cutoff
 ;MIDI CC 71: Resonance
 ;MIDI CC 5: Slide rate
@@ -117,7 +117,6 @@
   .DEFINE SYNC_LSDJS	1
   .DEFINE SYNC_LSDJMIDI	2
   .DEFINE SYNC_NANO	3
-  .DEFINE SYNC_MIDI	4
 
   .INCLUDE "directives.inc"
 

@@ -22,12 +22,6 @@ playv:
   ldh     ($02),a
 +:
 
-  ld      a,(SYNCMODE)
-  cp      SYNC_MIDI
-  jr      nz,+
-  ei ; Disable interrupts during midi sync to prevent missing serial bytes.
-+:
-
   ld     a,(PLAYING)
   or     a
   ret    z
@@ -35,8 +29,6 @@ playv:
   ld     a,(SYNCMODE)
   cp     SYNC_NONE
   jr     z,play_internal
-  cp     SYNC_MIDI
-  jr     z,play_midi
   cp     SYNC_LSDJS
   jr     z,play_internal
   cp     SYNC_LSDJMIDI

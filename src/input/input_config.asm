@@ -213,7 +213,7 @@ cfg_updsync:
   ld     b,TXT_INVERT
 cfg_updsync_a:
   ld     a,(SYNCMODE)
-  cp     5+1
+  cp     4+1
   ret    nc
   ld     hl,textptr_sync
   sla    a
@@ -344,7 +344,7 @@ cfg_paramlist:
   ;   min,max,variable
   .db 6,255
   .dw BPM,cfg_updbpm
-  .db 0,4
+  .db 0,3
   .dw SYNCMODE,cfg_updsync
   .db 0,3
   .dw LFOROUTE,cfg_updlforoute

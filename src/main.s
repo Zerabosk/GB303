@@ -187,14 +187,6 @@ start:
   ld     bc,$1FFE
   call   clear
 
-  call   readinput
-  ld     a,(JOYP_CURRENT)
-  bit    3,a
-  jr     z,+
-  ld     a,1
-  ld     (INVERTPOTS),a
-+:
-
   ld     a,$C3
   ld     (hblank),a
   ld     hl,hblank+1
@@ -255,26 +247,28 @@ start:
   ld     (BPM),a
   xor    a
   ld     (OSCTYPE),a
-  ld     (BEND),a
   ld     (PATTERN_LOAD_ACTIVE),a ; Initialise loading flag
   ld     (PATTERN_LOAD_PROGRESS),a ; Initialise progress
   ld     (MIDISTATUSBYTE),a ; Initialise status byte
   ld     (MIDIADDRESSBYTE),a ; Initialise address byte
   ld     (MIDIVALUEBYTE),a ; Initialise value byte
   ld     (MIDICAPTADDRFLG),a ; Initialise address flag
+  ld     (RESON),a
+  ld     (CUTOFFSET),a
+  ld     (BEND),a
+  ld     (SLIDESPEED),a
+  ld     (LFOSPEED),a
+  ld     (LFOAMP),a
+  ld     (LFOROUTE),a
+  ld     (LFORESON),a
+  ld     (LFOCUTOFF),a
+  ld     (LFOPITCH),a
   ld     a,1
   ld     (DRUMSMUTE),a
-  ld     a,8
-  ld     (RESON),a
-  ld     a,$20
-  ld     (CUTOFFSET),a
-  ld     a,$18
-  ld     (SLIDESPEED),a
 
   call   eebootcheck         ; Disable just for testing
   ;ld     a,1                  ; Load 1 into accumulator (hardware check passed)
   ;ld     (HWOK_EE),a          ; Set HWOK_EE to passed.
-  ;ld     (HWOK_ADC),a         ; Set HWOK_ADC to passed.
   
 
   ;Error messages if needed:
